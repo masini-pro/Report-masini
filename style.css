@@ -1,3 +1,8 @@
+Certamente. Ecco il codice CSS completo e finale per la sua applicazione, che include lo stile rinnovato e gli adattamenti per i pulsanti separati.
+
+Copi e incolli questo intero blocco di codice nel suo file `style.css`, sostituendo qualsiasi contenuto precedente.
+
+```css
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 :root {
@@ -10,6 +15,7 @@
     --container-bg: #ffffff;
     --border-color: #dfe6e9;
     --shadow-color: rgba(74, 144, 226, 0.2);
+    --error-color: #e74c3c;
 }
 
 body {
@@ -123,10 +129,16 @@ input[readonly] {
 }
 
 /* Autocomplete */
-.autocomplete-container { z-index: 10; }
+.autocomplete-container { 
+    position: relative;
+    z-index: 10; 
+}
+
 #autocompleteResults {
     position: absolute;
-    top: 100%; left: 0; right: 0;
+    top: 100%; 
+    left: 0; 
+    right: 0;
     background: white;
     border: 1px solid var(--border-color);
     border-top: none;
@@ -136,9 +148,19 @@ input[readonly] {
     overflow-y: auto;
     box-shadow: 0 5px 10px rgba(0,0,0,0.1);
 }
-.autocomplete-item { padding: 10px; cursor: pointer; }
-.autocomplete-item:hover, .autocomplete-item.active { background-color: #e9ecef; }
-.autocomplete-item strong { color: var(--primary-color); }
+
+.autocomplete-item { 
+    padding: 10px; 
+    cursor: pointer; 
+}
+
+.autocomplete-item:hover, .autocomplete-item.active { 
+    background-color: #e9ecef; 
+}
+
+.autocomplete-item strong { 
+    color: var(--primary-color); 
+}
 
 /* Interlocutori */
 .interlocutore-group {
@@ -151,36 +173,119 @@ input[readonly] {
     border: 1px dashed var(--border-color);
     border-radius: 6px;
 }
-#addInterlocutore { margin-top: 10px; }
+
+#addInterlocutore { 
+    margin-top: 10px; 
+}
+
 .remove-interlocutore-btn {
-    background: #e74c3c;
+    background: var(--error-color);
     color: white;
     border: none;
     border-radius: 6px;
     padding: 12px;
     cursor: pointer;
-    height: 48px; /* Allinea con input */
+    height: 48px; /* Allinea con altezza input */
     width: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.2s;
 }
-.remove-interlocutore-btn svg { width: 20px; height: 20px; }
+
+.remove-interlocutore-btn:hover {
+    background: #c0392b;
+}
+
+.remove-interlocutore-btn svg { 
+    width: 20px; 
+    height: 20px; 
+}
 
 /* Reminder Toggle Switch */
-.reminder-section { background: #f8f9fa; padding: 15px; border-radius: 6px; }
-.reminder-toggle { display: flex; align-items: center; gap: 10px; }
-.switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
-.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--secondary-color); }
-input:checked + .slider:before { transform: translateX(22px); }
-#reminderDateContainer { margin-top: 15px; }
-.hidden { display: none; }
+.reminder-section { 
+    background: #f8f9fa; 
+    padding: 15px; 
+    border-radius: 6px; 
+}
+
+.reminder-toggle { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+.switch { 
+    position: relative; 
+    display: inline-block; 
+    width: 50px; 
+    height: 28px; 
+}
+
+.switch input { 
+    opacity: 0; 
+    width: 0; 
+    height: 0; 
+}
+
+.slider { 
+    position: absolute; 
+    cursor: pointer; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    background-color: #ccc; 
+    transition: .4s; 
+    border-radius: 28px; 
+}
+
+.slider:before { 
+    position: absolute; 
+    content: ""; 
+    height: 20px; 
+    width: 20px; 
+    left: 4px; 
+    bottom: 4px; 
+    background-color: white; 
+    transition: .4s; 
+    border-radius: 50%; 
+}
+
+input:checked + .slider { 
+    background-color: var(--secondary-color); 
+}
+
+input:checked + .slider:before { 
+    transform: translateX(22px); 
+}
+
+#reminderDateContainer { 
+    margin-top: 15px; 
+}
+
+.hidden {
+    display: none;
+}
+
+/* File List */
+#file-list div {
+    padding: 5px;
+    background: #e9ecef;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 14px;
+}
 
 /* Pulsanti */
-.form-actions { display: flex; justify-content: space-between; gap: 20px; margin-top: 30px; }
+.form-actions {
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 30px;
+}
+
 button {
     padding: 14px 22px;
     font-size: 16px;
@@ -195,22 +300,77 @@ button {
     justify-content: center;
     gap: 8px;
 }
-.button-primary {
+
+#generatePdfBtn, #generateIcsBtn {
+    flex-grow: 1; /* Permette ai pulsanti di azione di occupare lo spazio disponibile */
+}
+
+#generatePdfBtn {
     background-image: linear-gradient(45deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: white;
-    width: 100%;
     box-shadow: 0 4px 15px var(--shadow-color);
 }
-.button-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow-color); }
-#resetButton { background-color: #95a5a6; color: white; }
-#resetButton:hover { background-color: #7f8c8d; }
-.button-secondary { background-color: #ecf0f1; color: var(--heading-color); border: 1px solid var(--border-color); }
-.button-secondary:hover { background-color: #dfe6e9; }
-.button-secondary svg { width: 20px; height: 20px; }
 
-@media (max-width: 700px) {
-    .container { margin: 0; padding: 15px; border-radius: 0; box-shadow: none; }
-    .interlocutore-group { grid-template-columns: 1fr; }
-    .form-actions { flex-direction: column-reverse; }
-    button { width: 100%; }
+#generatePdfBtn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 20px var(--shadow-color); 
 }
+
+#generateIcsBtn {
+    background-color: #ecf0f1;
+    color: var(--heading-color);
+    border: 1px solid var(--border-color);
+}
+
+#generateIcsBtn:hover {
+    background-color: #dfe6e9;
+}
+
+#resetButton {
+    background-color: #95a5a6;
+    color: white;
+    flex-grow: 0;
+    min-width: 150px;
+}
+
+#resetButton:hover { 
+    background-color: #7f8c8d; 
+}
+
+.button-secondary {
+    background-color: #ecf0f1;
+    color: var(--heading-color);
+    border: 1px solid var(--border-color);
+}
+
+.button-secondary:hover {
+    background-color: #dfe6e9;
+}
+
+.button-secondary svg, #generateIcsBtn svg, #generatePdfBtn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 700px) {
+    .container {
+        margin: 0;
+        padding: 15px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .interlocutore-group {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+```
