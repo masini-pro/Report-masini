@@ -150,8 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
             year: 'numeric'
         }).format(visitDateObj);
 
-        // Costruisce il titolo dinamico del PDF
-        const pdfTitle = `S${data.weekNumber} - Visita ${data.clientName} in data ${dateInLettere}`;
+        // Titolo del PDF aggiornato con il luogo
+        const pdfTitle = `S${data.weekNumber} - Visita ${data.clientName} a ${data.location} in data ${dateInLettere}`;
 
         // Funzione helper per aggiungere testo e gestire il cambio pagina
         const addText = (text, options) => {
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Aggiunge il titolo dinamico al PDF
-        addText(pdfTitle, { size: 18, style: 'bold', color: [44, 62, 80], x: WIDTH / 2, align: 'center', space: 15 });
+        addText(pdfTitle, { size: 16, style: 'bold', color: [44, 62, 80], x: WIDTH / 2, align: 'center', space: 15 });
         
         // Dati dell'Area Manager e Agente
         doc.setFont(FONT, 'normal').setFontSize(10).setTextColor(100);
@@ -233,7 +233,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        doc.save(`Report_${data.clientName}_${data.visitDate}.pdf`);
+        // --- NUOVO FORMATO NOME FILE ---
+        const year = visitDateObj.getFullYear();
+        const week = String(data.weekNumber).padStart(2, '0');
+        const day = String(visitDateObj.getDate()).padStart(2, '0');
+        const month = String(visitDateObj.getMonth() + 1).padStart(2, '0'); // I mesi sono 0-indexed
+
+        // Pulisce i nomi per evitare caratteri non validi nei nomi dei file, ma mantiene gli spazi
+        const cleanClientName = data.clientName.replace(/[\\/:*?"<>|]/g, '').trim();
+        const cleanLocation = data.location.replace(/[\\/:*?"<>|]/g, '').trim();
+        
+        const fileName = `${year}_S${week} (${day}-${month}) - ${cleanClientName} _ ${cleanLocation}.pdf`;
+        doc.save(fileName);
     }
 
     // Genera il file .ics per il calendario
