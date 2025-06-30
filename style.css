@@ -112,17 +112,23 @@ legend {
     opacity: 1;
 }
 
-/* --- CORREZIONE: Label sempre in primo piano --- */
+/* --- CORREZIONE: Stile Label corretto --- */
 label {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
     font-size: 0.95em;
-    position: relative; /* Necessario per applicare z-index */
-    z-index: 2; /* Assicura che la label sia sopra il bordo (z-index: 0) */
-    background-color: #fbfdff; /* Aggiunge uno sfondo per non far trasparire il bordo */
-    padding: 0 2px; /* Piccolo padding per non toccare i bordi */
-    width: fit-content; /* Adatta la larghezza al testo */
+    position: relative;
+    z-index: 2; /* Assicura che la label sia sopra il bordo animato */
+    padding: 0 2px;
+    width: fit-content;
+    color: var(--heading-color); /* Colore di default della label */
+    transition: color 0.3s ease; /* Aggiunge una transizione fluida per il cambio colore */
+}
+
+/* Quando il gruppo è in focus, il testo della label diventa bianco */
+.form-group:focus-within label {
+    color: white;
 }
 
 input[type="text"],
@@ -139,7 +145,7 @@ textarea {
     transition: border-color 0.3s, box-shadow 0.3s;
     background-color: var(--container-bg);
     position: relative;
-    z-index: 1; /* Sopra il bordo, ma sotto la label */
+    z-index: 1; /* Sopra il bordo animato, ma sotto la label */
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
 }
 
@@ -150,6 +156,7 @@ textarea {
     border-color: transparent;
     outline: none;
 }
+
 
 input[readonly] {
     background-color: #e9ecef;
