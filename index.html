@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore Report Visite</title>
+    <meta name="description" content="App per la generazione di report visite clienti.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a90e2"/>
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-2.1 6.3c-.528 1.591.748 3.024 2.34 2.34l6.3-2.1a5.25 5.25 0 002.214-1.32l8.4-8.4z"/><path d="M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z"/></svg>
+                <h1>Generatore Report Visite</h1>
+            </div>
+            <p>Compila i campi per creare il tuo report personalizzato.</p>
+        </header>
+        <main>
+            <form id="reportForm">
+                <fieldset>
+                    <legend>Dati Generali</legend>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="visitDate">Data Visita</label>
+                            <input type="date" id="visitDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="weekNumber">Settimana N°</label>
+                            <input type="text" id="weekNumber" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Paese / Stato</label>
+                            <select id="country" required>
+                                <option value="Francia">Francia</option>
+                                <option value="Belgio">Belgio</option>
+                                <option value="Monaco">Monaco</option>
+                                <option value="Lussemburgo">Lussemburgo</option>
+                                <option value="Svizzera">Svizzera</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="agent">Agente</label>
+                            <select id="agent" required></select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Cliente e Luogo</legend>
+                    <div class="form-group">
+                        <label for="clientName">Ragione Sociale Cliente</label>
+                        <input type="text" id="clientName" placeholder="Nome dell'azienda cliente" required>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="location">Luogo Visita (con autocompletamento)</label>
+                        <input type="text" id="location" placeholder="Digita le prime lettere del comune..." required>
+                        <div id="autocompleteResults"></div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Interlocutori Incontrati</legend>
+                    <div id="interlocutori-container">
+                        </div>
+                    <button type="button" id="addInterlocutore" class="button-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
+                        Aggiungi Interlocutore
+                    </button>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>Dettagli Visita</legend>
+                    <div class="form-group">
+                        <label for="topics">Argomenti Trattati</label>
+                        <textarea id="topics" rows="5" placeholder="Elenco puntato o descrizione..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="agreements">Cosa è stato concordato?</label>
+                        <textarea id="agreements" rows="5" placeholder="Decisioni prese, prossimi passi, offerte da preparare..."></textarea>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Azioni Future e Allegati</legend>
+                    <div class="form-group reminder-section">
+                        <label>Imposta un reminder per il follow-up</label>
+                        <div class="reminder-toggle">
+                            <span>No</span>
+                            <label class="switch">
+                                <input type="checkbox" id="reminderToggle">
+                                <span class="slider"></span>
+                            </label>
+                            <span>Sì</span>
+                        </div>
+                        <div id="reminderDateContainer" class="hidden">
+                            <label for="reminderDate">Data Reminder</label>
+                            <input type="date" id="reminderDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="attachments">Allegati (Foto o PDF)</label>
+                        <input type="file" id="attachments" multiple accept="image/*,application/pdf">
+                        <small>Le immagini verranno incluse nel PDF. Puoi selezionare più file.</small>
+                        <div id="file-list"></div>
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" class="button-primary">Genera Report PDF</button>
+                    <button type="button" id="resetButton">Pulisci Form</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
