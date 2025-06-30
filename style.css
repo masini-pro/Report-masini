@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 :root {
-    --primary-color: #3498db;  /* Blu più vibrante */
+    --primary-color: #3498db;
     --primary-dark: #2980b9;
-    --secondary-color: #1abc9c; /* Verde acqua per accenti */
+    --secondary-color: #1abc9c;
     --background-color: #f4f6f8;
-    --text-color: #555; /* Testo più scuro per contrasto */
-    --heading-color: #2c3e50; /* Titoli molto scuri */
+    --text-color: #555;
+    --heading-color: #2c3e50;
     --container-bg: #ffffff;
-    --border-color: #bdc3c7; /* Bordi più definiti */
+    --border-color: #bdc3c7;
     --shadow-color: rgba(52, 152, 219, 0.2);
     --error-color: #e74c3c;
 }
@@ -77,7 +77,7 @@ legend {
     padding: 0 10px;
 }
 
-/* --- BORDO ANIMATO E STILE INPUT MIGLIORATO --- */
+/* --- BORDO ANIMATO E STILE INPUT CORRETTO --- */
 
 .form-group {
     position: relative;
@@ -93,12 +93,12 @@ legend {
     height: calc(100% + 4px);
     background: linear-gradient(60deg, var(--secondary-color), var(--primary-color), var(--primary-dark), var(--secondary-color));
     background-size: 300% 300%;
-    border-radius: 8px; /* Raggio leggermente più grande dell'input */
-    z-index: 0;
+    border-radius: 8px;
+    z-index: 0; /* Livello più basso */
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     animation: animated-border 4s linear infinite;
-    pointer-events: none; /* Non intercetta i click */
+    pointer-events: none;
 }
 
 @keyframes animated-border {
@@ -112,11 +112,17 @@ legend {
     opacity: 1;
 }
 
+/* --- CORREZIONE: Label sempre in primo piano --- */
 label {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
     font-size: 0.95em;
+    position: relative; /* Necessario per applicare z-index */
+    z-index: 2; /* Assicura che la label sia sopra il bordo (z-index: 0) */
+    background-color: #fbfdff; /* Aggiunge uno sfondo per non far trasparire il bordo */
+    padding: 0 2px; /* Piccolo padding per non toccare i bordi */
+    width: fit-content; /* Adatta la larghezza al testo */
 }
 
 input[type="text"],
@@ -131,10 +137,10 @@ textarea {
     font-family: 'Poppins', sans-serif;
     box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
-    background-color: var(--container-bg); /* Sfondo per coprire il gradiente */
-    position: relative; /* Per stare sopra lo pseudo-elemento del bordo */
-    z-index: 1;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06); /* Ombra interna per profondità */
+    background-color: var(--container-bg);
+    position: relative;
+    z-index: 1; /* Sopra il bordo, ma sotto la label */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
 }
 
 /* Nasconde il bordo di default quando il bordo animato è attivo */
