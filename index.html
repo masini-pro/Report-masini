@@ -51,7 +51,6 @@
                         </div>
                     </div>
                 </fieldset>
-
                 <fieldset>
                     <legend>Cliente e Luogo</legend>
                     <div class="form-group">
@@ -64,17 +63,15 @@
                         <div id="autocompleteResults"></div>
                     </div>
                 </fieldset>
-
                 <fieldset>
                     <legend>Interlocutori Incontrati</legend>
                     <div id="interlocutori-container">
-                        </div>
+                    </div>
                     <button type="button" id="addInterlocutore" class="button-secondary">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
                         Aggiungi Interlocutore
                     </button>
                 </fieldset>
-                
                 <fieldset>
                     <legend>Dettagli Visita</legend>
                     <div class="form-group">
@@ -86,7 +83,6 @@
                         <textarea id="agreements" rows="5" placeholder="Decisioni prese, prossimi passi, offerte da preparare..."></textarea>
                     </div>
                 </fieldset>
-
                 <fieldset>
                     <legend>Azioni Future e Allegati</legend>
                     <div class="form-group reminder-section">
@@ -111,9 +107,16 @@
                         <div id="file-list"></div>
                     </div>
                 </fieldset>
-
+                
                 <div class="form-actions">
-                    <button type="submit" class="button-primary">Genera Report PDF</button>
+                    <button type="button" id="generatePdfBtn" class="button-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H5zm5.5 8a.5.5 0 00-1 0v3.5a.5.5 0 001 0V10z" clip-rule="evenodd" /><path d="M10 2a.5.5 0 01.5.5v3.5a.5.5 0 01-1 0V2.5A.5.5 0 0110 2z" /></svg>
+                        Genera Report PDF
+                    </button>
+                    <button type="button" id="generateIcsBtn" class="button-secondary hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M5.75 3.5a.75.75 0 00-1.5 0v1.5c0 .414.336.75.75.75h1.5a.75.75 0 000-1.5H6.5v-1.5a.75.75 0 00-.75-.75zM8 8a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1zm5.25 1.5a.75.75 0 000-1.5H11.5v-1.5a.75.75 0 00-1.5 0v1.5c0 .414.336.75.75.75h2.25zM4 15.25a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75a.75.75 0 01-.75-.75zM4 12a1 1 0 011-1h2a1 1 0 110 2H5a1 1 0 01-1-1zm11.25-4.5a.75.75 0 00-1.5 0v1.5c0 .414.336.75.75.75h1.5a.75.75 0 000-1.5h-1.5V7.5z" clip-rule="evenodd" /></svg>
+                        Genera Reminder (.ics)
+                    </button>
                     <button type="button" id="resetButton">Pulisci Form</button>
                 </div>
             </form>
