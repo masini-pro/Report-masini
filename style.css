@@ -1,20 +1,15 @@
-Certamente. Ecco il codice CSS completo e finale per la sua applicazione, che include lo stile rinnovato e gli adattamenti per i pulsanti separati.
-
-Copi e incolli questo intero blocco di codice nel suo file `style.css`, sostituendo qualsiasi contenuto precedente.
-
-```css
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 :root {
-    --primary-color: #4a90e2;
-    --primary-dark: #357ABD;
-    --secondary-color: #50e3c2;
-    --background-color: #f5f8fa;
-    --text-color: #4a4a4a;
-    --heading-color: #2c3e50;
+    --primary-color: #3498db;  /* Blu più vibrante */
+    --primary-dark: #2980b9;
+    --secondary-color: #1abc9c; /* Verde acqua per accenti */
+    --background-color: #f4f6f8;
+    --text-color: #555; /* Testo più scuro per contrasto */
+    --heading-color: #2c3e50; /* Titoli molto scuri */
     --container-bg: #ffffff;
-    --border-color: #dfe6e9;
-    --shadow-color: rgba(74, 144, 226, 0.2);
+    --border-color: #bdc3c7; /* Bordi più definiti */
+    --shadow-color: rgba(52, 152, 219, 0.2);
     --error-color: #e74c3c;
 }
 
@@ -32,7 +27,7 @@ body {
     padding: 30px;
     background-color: var(--container-bg);
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
 }
 
 header {
@@ -68,11 +63,11 @@ header p {
 }
 
 fieldset {
-    border: 1px solid var(--border-color);
+    border: 1px solid #e0e6ed;
     border-radius: 8px;
-    padding: 20px;
+    padding: 25px;
     margin-bottom: 25px;
-    background-color: #fdfdfd;
+    background-color: #fbfdff;
 }
 
 legend {
@@ -82,9 +77,39 @@ legend {
     padding: 0 10px;
 }
 
+/* --- BORDO ANIMATO E STILE INPUT MIGLIORATO --- */
+
 .form-group {
-    margin-bottom: 20px;
     position: relative;
+    margin-bottom: 20px;
+}
+
+/* Contenitore per l'effetto del bordo */
+.form-group::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    background: linear-gradient(60deg, var(--secondary-color), var(--primary-color), var(--primary-dark), var(--secondary-color));
+    background-size: 300% 300%;
+    border-radius: 8px; /* Raggio leggermente più grande dell'input */
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    animation: animated-border 4s linear infinite;
+    pointer-events: none; /* Non intercetta i click */
+}
+
+@keyframes animated-border {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Attiva l'animazione quando un elemento all'interno del gruppo è in focus */
+.form-group:focus-within::before {
+    opacity: 1;
 }
 
 label {
@@ -99,22 +124,25 @@ input[type="date"],
 select,
 textarea {
     width: 100%;
-    padding: 12px;
+    padding: 12px 15px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 16px;
     font-family: 'Poppins', sans-serif;
     box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: var(--container-bg); /* Sfondo per coprire il gradiente */
+    position: relative; /* Per stare sopra lo pseudo-elemento del bordo */
+    z-index: 1;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06); /* Ombra interna per profondità */
 }
 
-input[type="text"]:focus,
-input[type="date"]:focus,
-select:focus,
-textarea:focus {
+/* Nasconde il bordo di default quando il bordo animato è attivo */
+.form-group:focus-within input,
+.form-group:focus-within select,
+.form-group:focus-within textarea {
+    border-color: transparent;
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--shadow-color);
 }
 
 input[readonly] {
@@ -129,248 +157,70 @@ input[readonly] {
 }
 
 /* Autocomplete */
-.autocomplete-container { 
-    position: relative;
-    z-index: 10; 
-}
-
+.autocomplete-container { z-index: 10; }
 #autocompleteResults {
-    position: absolute;
-    top: 100%; 
-    left: 0; 
-    right: 0;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    z-index: 1000;
-    max-height: 200px;
-    overflow-y: auto;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: white; border: 1px solid var(--border-color); border-top: none;
+    border-radius: 0 0 6px 6px; z-index: 1000; max-height: 200px;
+    overflow-y: auto; box-shadow: 0 5px 10px rgba(0,0,0,0.1);
 }
-
-.autocomplete-item { 
-    padding: 10px; 
-    cursor: pointer; 
-}
-
-.autocomplete-item:hover, .autocomplete-item.active { 
-    background-color: #e9ecef; 
-}
-
-.autocomplete-item strong { 
-    color: var(--primary-color); 
-}
+.autocomplete-item { padding: 10px; cursor: pointer; }
+.autocomplete-item:hover, .autocomplete-item.active { background-color: #e9ecef; }
+.autocomplete-item strong { color: var(--primary-color); }
 
 /* Interlocutori */
 .interlocutore-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 15px;
-    align-items: end;
-    margin-bottom: 15px;
-    padding: 15px;
-    border: 1px dashed var(--border-color);
-    border-radius: 6px;
+    display: grid; grid-template-columns: 1fr 1fr auto;
+    gap: 15px; align-items: end; margin-bottom: 15px;
+    padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px;
 }
-
-#addInterlocutore { 
-    margin-top: 10px; 
-}
-
+#addInterlocutore { margin-top: 10px; }
 .remove-interlocutore-btn {
-    background: var(--error-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 12px;
-    cursor: pointer;
-    height: 48px; /* Allinea con altezza input */
-    width: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: var(--error-color); color: white; border: none; border-radius: 6px;
+    padding: 12px; cursor: pointer; height: 48px; width: 48px;
+    display: flex; align-items: center; justify-content: center;
     transition: background-color 0.2s;
 }
-
-.remove-interlocutore-btn:hover {
-    background: #c0392b;
-}
-
-.remove-interlocutore-btn svg { 
-    width: 20px; 
-    height: 20px; 
-}
+.remove-interlocutore-btn:hover { background: #c0392b; }
+.remove-interlocutore-btn svg { width: 20px; height: 20px; }
 
 /* Reminder Toggle Switch */
-.reminder-section { 
-    background: #f8f9fa; 
-    padding: 15px; 
-    border-radius: 6px; 
-}
-
-.reminder-toggle { 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-}
-
-.switch { 
-    position: relative; 
-    display: inline-block; 
-    width: 50px; 
-    height: 28px; 
-}
-
-.switch input { 
-    opacity: 0; 
-    width: 0; 
-    height: 0; 
-}
-
-.slider { 
-    position: absolute; 
-    cursor: pointer; 
-    top: 0; 
-    left: 0; 
-    right: 0; 
-    bottom: 0; 
-    background-color: #ccc; 
-    transition: .4s; 
-    border-radius: 28px; 
-}
-
-.slider:before { 
-    position: absolute; 
-    content: ""; 
-    height: 20px; 
-    width: 20px; 
-    left: 4px; 
-    bottom: 4px; 
-    background-color: white; 
-    transition: .4s; 
-    border-radius: 50%; 
-}
-
-input:checked + .slider { 
-    background-color: var(--secondary-color); 
-}
-
-input:checked + .slider:before { 
-    transform: translateX(22px); 
-}
-
-#reminderDateContainer { 
-    margin-top: 15px; 
-}
-
-.hidden {
-    display: none;
-}
-
-/* File List */
-#file-list div {
-    padding: 5px;
-    background: #e9ecef;
-    border-radius: 4px;
-    margin-top: 5px;
-    font-size: 14px;
-}
+.reminder-section { background: #f8f9fa; padding: 15px; border-radius: 6px; }
+.reminder-toggle { display: flex; align-items: center; gap: 10px; }
+.switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--secondary-color); }
+input:checked + .slider:before { transform: translateX(22px); }
+#reminderDateContainer { margin-top: 15px; }
+.hidden { display: none; }
 
 /* Pulsanti */
-.form-actions {
-    display: flex;
-    flex-wrap: wrap; 
-    justify-content: space-between;
-    gap: 15px;
-    margin-top: 30px;
-}
-
+.form-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 15px; margin-top: 30px; }
 button {
-    padding: 14px 22px;
-    font-size: 16px;
-    font-weight: 600;
-    font-family: 'Poppins', sans-serif;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    padding: 14px 22px; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif;
+    border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-
-#generatePdfBtn, #generateIcsBtn {
-    flex-grow: 1; /* Permette ai pulsanti di azione di occupare lo spazio disponibile */
-}
-
+#generatePdfBtn, #generateIcsBtn { flex-grow: 1; }
 #generatePdfBtn {
     background-image: linear-gradient(45deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
-    box-shadow: 0 4px 15px var(--shadow-color);
+    color: white; box-shadow: 0 4px 15px var(--shadow-color);
 }
-
-#generatePdfBtn:hover { 
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 20px var(--shadow-color); 
-}
-
-#generateIcsBtn {
-    background-color: #ecf0f1;
-    color: var(--heading-color);
-    border: 1px solid var(--border-color);
-}
-
-#generateIcsBtn:hover {
-    background-color: #dfe6e9;
-}
-
-#resetButton {
-    background-color: #95a5a6;
-    color: white;
-    flex-grow: 0;
-    min-width: 150px;
-}
-
-#resetButton:hover { 
-    background-color: #7f8c8d; 
-}
-
-.button-secondary {
-    background-color: #ecf0f1;
-    color: var(--heading-color);
-    border: 1px solid var(--border-color);
-}
-
-.button-secondary:hover {
-    background-color: #dfe6e9;
-}
-
-.button-secondary svg, #generateIcsBtn svg, #generatePdfBtn svg {
-    width: 20px;
-    height: 20px;
-}
+#generatePdfBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow-color); }
+#generateIcsBtn { background-color: #ecf0f1; color: var(--heading-color); border: 1px solid var(--border-color); }
+#generateIcsBtn:hover { background-color: #dfe6e9; }
+#resetButton { background-color: #95a5a6; color: white; flex-grow: 0; min-width: 150px; }
+#resetButton:hover { background-color: #7f8c8d; }
+.button-secondary { background-color: #ecf0f1; color: var(--heading-color); border: 1px solid var(--border-color); }
+.button-secondary:hover { background-color: #dfe6e9; }
+.button-secondary svg, #generateIcsBtn svg, #generatePdfBtn svg { width: 20px; height: 20px; }
 
 /* Responsive Design */
 @media (max-width: 700px) {
-    .container {
-        margin: 0;
-        padding: 15px;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    .interlocutore-group {
-        grid-template-columns: 1fr;
-    }
-
-    .form-actions {
-        flex-direction: column-reverse;
-    }
-
-    button {
-        width: 100%;
-    }
+    .container { margin: 0; padding: 15px; border-radius: 0; box-shadow: none; }
+    .interlocutore-group { grid-template-columns: 1fr; }
+    .form-actions { flex-direction: column-reverse; }
+    button { width: 100%; }
 }
-```
