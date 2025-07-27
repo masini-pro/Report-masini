@@ -77,14 +77,13 @@ legend {
     padding: 0 10px;
 }
 
-/* --- BORDO ANIMATO E STILE INPUT CORRETTO --- */
+/* --- BORDO ANIMATO E STILE INPUT --- */
 
 .form-group {
     position: relative;
     margin-bottom: 20px;
 }
 
-/* Contenitore per l'effetto del bordo */
 .form-group::before {
     content: '';
     position: absolute;
@@ -94,7 +93,7 @@ legend {
     background: linear-gradient(60deg, var(--secondary-color), var(--primary-color), var(--primary-dark), var(--secondary-color));
     background-size: 300% 300%;
     border-radius: 8px;
-    z-index: 0; /* Livello più basso */
+    z-index: 0;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     animation: animated-border 4s linear infinite;
@@ -107,26 +106,23 @@ legend {
     100% { background-position: 0% 50%; }
 }
 
-/* Attiva l'animazione quando un elemento all'interno del gruppo è in focus */
 .form-group:focus-within::before {
     opacity: 1;
 }
 
-/* --- CORREZIONE: Stile Label corretto --- */
 label {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
     font-size: 0.95em;
     position: relative;
-    z-index: 2; /* Assicura che la label sia sopra il bordo animato */
+    z-index: 2;
     padding: 0 2px;
     width: fit-content;
-    color: var(--heading-color); /* Colore di default della label */
-    transition: color 0.3s ease; /* Aggiunge una transizione fluida per il cambio colore */
+    color: var(--heading-color);
+    transition: color 0.3s ease;
 }
 
-/* Quando il gruppo è in focus, il testo della label diventa bianco */
 .form-group:focus-within label {
     color: white;
 }
@@ -145,11 +141,10 @@ textarea {
     transition: border-color 0.3s, box-shadow 0.3s;
     background-color: var(--container-bg);
     position: relative;
-    z-index: 1; /* Sopra il bordo animato, ma sotto la label */
+    z-index: 1;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
 }
 
-/* Nasconde il bordo di default quando il bordo animato è attivo */
 .form-group:focus-within input,
 .form-group:focus-within select,
 .form-group:focus-within textarea {
@@ -157,11 +152,31 @@ textarea {
     outline: none;
 }
 
-
+/* Stile specifico per i campi readonly (Dipartimento e Regione) */
 input[readonly] {
-    background-color: #e9ecef;
+    background-color: #f0f2f5;
     cursor: not-allowed;
+    color: #777;
+    font-style: italic;
 }
+
+/* Rimuove l'effetto focus per i campi readonly */
+.form-group:focus-within input[readonly] {
+    border-color: var(--border-color);
+}
+.form-group input[readonly]:focus {
+    border-color: var(--border-color);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+/* Disabilita l'animazione del bordo per i gruppi che contengono un input readonly in focus */
+.form-group:has(input[readonly]:focus)::before {
+    opacity: 0;
+}
+/* Mantiene il colore originale della label per i gruppi con input readonly in focus */
+.form-group:has(input[readonly]:focus) label {
+    color: var(--heading-color);
+}
+
 
 .form-grid {
     display: grid;
@@ -169,7 +184,6 @@ input[readonly] {
     gap: 20px;
 }
 
-/* Autocomplete */
 .autocomplete-container { z-index: 10; }
 #autocompleteResults {
     position: absolute; top: 100%; left: 0; right: 0;
@@ -181,7 +195,6 @@ input[readonly] {
 .autocomplete-item:hover, .autocomplete-item.active { background-color: #e9ecef; }
 .autocomplete-item strong { color: var(--primary-color); }
 
-/* Interlocutori */
 .interlocutore-group {
     display: grid; grid-template-columns: 1fr 1fr auto;
     gap: 15px; align-items: end; margin-bottom: 15px;
@@ -197,7 +210,6 @@ input[readonly] {
 .remove-interlocutore-btn:hover { background: #c0392b; }
 .remove-interlocutore-btn svg { width: 20px; height: 20px; }
 
-/* Reminder Toggle Switch */
 .reminder-section { background: #f8f9fa; padding: 15px; border-radius: 6px; }
 .reminder-toggle { display: flex; align-items: center; gap: 10px; }
 .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
@@ -209,7 +221,6 @@ input:checked + .slider:before { transform: translateX(22px); }
 #reminderDateContainer { margin-top: 15px; }
 .hidden { display: none; }
 
-/* Pulsanti */
 .form-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 15px; margin-top: 30px; }
 button {
     padding: 14px 22px; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif;
@@ -230,7 +241,6 @@ button {
 .button-secondary:hover { background-color: #dfe6e9; }
 .button-secondary svg, #generateIcsBtn svg, #generatePdfBtn svg { width: 20px; height: 20px; }
 
-/* Responsive Design */
 @media (max-width: 700px) {
     .container { margin: 0; padding: 15px; border-radius: 0; box-shadow: none; }
     .interlocutore-group { grid-template-columns: 1fr; }
