@@ -23,7 +23,8 @@
             <p>Compila i campi per creare il tuo report personalizzato.</p>
         </header>
         <main>
-            <form id="reportForm">
+            <form id="reportForm" novalidate>
+                <!-- Dati Generali -->
                 <fieldset>
                     <legend>Dati Generali</legend>
                     <div class="form-grid">
@@ -51,6 +52,8 @@
                         </div>
                     </div>
                 </fieldset>
+
+                <!-- Cliente e Luogo -->
                 <fieldset>
                     <legend>Cliente e Luogo</legend>
                     <div class="form-group">
@@ -58,20 +61,34 @@
                         <input type="text" id="clientName" placeholder="Nome dell'azienda cliente" required>
                     </div>
                     <div class="form-group autocomplete-container">
-                        <label for="location">Luogo Visita (con autocompletamento)</label>
+                        <label for="location">Comune</label>
                         <input type="text" id="location" placeholder="Digita le prime lettere del comune..." required>
                         <div id="autocompleteResults"></div>
                     </div>
+                    <!-- Campi automatici per Dipartimento e Regione -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="department">Dipartimento</label>
+                            <input type="text" id="department" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="region">Regione</label>
+                            <input type="text" id="region" readonly>
+                        </div>
+                    </div>
                 </fieldset>
+
+                <!-- Interlocutori -->
                 <fieldset>
                     <legend>Interlocutori Incontrati</legend>
-                    <div id="interlocutori-container">
-                    </div>
+                    <div id="interlocutori-container"></div>
                     <button type="button" id="addInterlocutore" class="button-secondary">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
                         Aggiungi Interlocutore
                     </button>
                 </fieldset>
+                
+                <!-- Dettagli Visita -->
                 <fieldset>
                     <legend>Dettagli Visita</legend>
                     <div class="form-group">
@@ -83,6 +100,8 @@
                         <textarea id="agreements" rows="5" placeholder="Decisioni prese, prossimi passi, offerte da preparare..."></textarea>
                     </div>
                 </fieldset>
+
+                <!-- Azioni Future e Allegati -->
                 <fieldset>
                     <legend>Azioni Future e Allegati</legend>
                     <div class="form-group reminder-section">
@@ -107,7 +126,8 @@
                         <div id="file-list"></div>
                     </div>
                 </fieldset>
-                
+
+                <!-- Pulsanti Azione -->
                 <div class="form-actions">
                     <button type="button" id="generatePdfBtn" class="button-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H5zm5.5 8a.5.5 0 00-1 0v3.5a.5.5 0 001 0V10z" clip-rule="evenodd" /><path d="M10 2a.5.5 0 01.5.5v3.5a.5.5 0 01-1 0V2.5A.5.5 0 0110 2z" /></svg>
