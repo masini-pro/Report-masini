@@ -9,8 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('reportForm');
     const visitDateInput = document.getElementById('visitDate');
     const weekNumberInput = document.getElementById('weekNumber');
+    const countrySelect = document.getElementById('country');
     const agentSelect = document.getElementById('agent');
     const locationInput = document.getElementById('location');
+    const departmentInput = document.getElementById('department');
+    const regionInput = document.getElementById('region');
     const autocompleteResults = document.getElementById('autocompleteResults');
     const interlocutoriContainer = document.getElementById('interlocutori-container');
     const addInterlocutoreBtn = document.getElementById('addInterlocutore');
@@ -19,31 +22,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetButton = document.getElementById('resetButton');
     const fileInput = document.getElementById('attachments');
     const fileListDiv = document.getElementById('file-list');
-    
-    // Pulsanti di azione separati
     const generatePdfBtn = document.getElementById('generatePdfBtn');
     const generateIcsBtn = document.getElementById('generateIcsBtn');
 
-    let comuni = [];
+    let comuniData = [];
     let isComuniLoaded = false;
 
     // --- CARICAMENTO DATI INIZIALI ---
     
-    // Carica l'elenco dei comuni per l'autocompletamento
     fetch('comuni.json')
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
+        .then(response => response.ok ? response.json() : Promise.reject('Errore caricamento comuni.json'))
         .then(data => {
-            comuni = data;
+            comuniData = data;
             isComuniLoaded = true;
         })
-        .catch(error => console.error('Errore nel caricamento del file comuni.json:', error));
+        .catch(error => console.error(error));
     
-    // Carica e popola la select degli agenti
     fetch('agenti.json')
-        .then(response => response.json())
+        .then(response => response.ok ? response.json() : Promise.reject('Errore caricamento agenti.json'))
         .then(data => {
             data.forEach(agente => {
                 const option = document.createElement('option');
@@ -52,19 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 agentSelect.appendChild(option);
             });
         })
-        .catch(error => console.error('Errore nel caricamento del file agenti.json:', error));
+        .catch(error => console.error(error));
 
-    // Imposta la data odierna e calcola la settimana
     const today = new Date();
     visitDateInput.value = today.toISOString().split('T')[0];
     updateWeekNumber(today);
-    
-    // Aggiunge il primo interlocutore di default all'avvio
     addInterlocutore();
 
     // --- FUNZIONI ---
 
-    // Calcola il numero della settimana secondo lo standard ISO 8601
     function getWeekNumber(d) {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
         d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -76,61 +68,51 @@ document.addEventListener('DOMContentLoaded', () => {
         if (date) weekNumberInput.value = getWeekNumber(date);
     }
     
-    // Gestisce la logica di autocompletamento per i comuni
     function handleAutocomplete(e) {
         const query = e.target.value.toLowerCase().trim();
+        const selectedCountry = countrySelect.value;
         autocompleteResults.innerHTML = '';
-        if (query.length < 3 || !isComuniLoaded) return;
+        departmentInput.value = ''; // Pulisce i campi se l'utente modifica il comune
+        regionInput.value = '';
+
+        if (query.length < 2 || !isComuniLoaded) return;
         
-        const filteredComuni = comuni.filter(c => c.toLowerCase().startsWith(query)).slice(0, 7);
+        const filteredComuni = comuniData
+            .filter(c => c.pays === selectedCountry && c.commune.toLowerCase().startsWith(query))
+            .slice(0, 7);
         
-        filteredComuni.forEach(comune => {
+        filteredComuni.forEach(comuneObj => {
             const div = document.createElement('div');
             div.classList.add('autocomplete-item');
-            const match = comune.substring(0, query.length);
-            const rest = comune.substring(query.length);
+            const match = comuneObj.commune.substring(0, query.length);
+            const rest = comuneObj.commune.substring(query.length);
             div.innerHTML = `<strong>${match}</strong>${rest}`;
+            
             div.addEventListener('click', () => {
-                locationInput.value = comune;
-                autocompleteResults.innerHTML = '';
+                selectCommune(comuneObj);
             });
             autocompleteResults.appendChild(div);
         });
     }
+    
+    function selectCommune(comuneObj) {
+        locationInput.value = comuneObj.commune;
+        // Compila i campi Dipartimento e Regione, gestendo i casi in cui non ci sono dati
+        departmentInput.value = comuneObj.departement ? `${comuneObj.departement} (${comuneObj.code_departement})` : 'N/D';
+        regionInput.value = comuneObj.region || 'N/D';
+        autocompleteResults.innerHTML = '';
+    }
 
-    // Aggiunge un nuovo blocco per inserire un interlocutore
     function addInterlocutore() {
         const id = Date.now();
         const div = document.createElement('div');
         div.className = 'interlocutore-group';
         div.id = `interlocutore-${id}`;
-        div.innerHTML = `
-            <div class="form-group">
-                <label for="contactName-${id}">Nome e Cognome</label>
-                <input type="text" id="contactName-${id}" class="contactName" placeholder="Nome Cognome" required>
-            </div>
-            <div class="form-group">
-                <label for="contactRole-${id}">Ruolo</label>
-                <select id="contactRole-${id}" class="contactRole" required>
-                    <option value="Titolare">Titolare</option>
-                    <option value="Venditore di sala">Venditore di sala</option>
-                    <option value="Responsabile di sede">Responsabile di sede</option>
-                    <option value="Direttore commerciale">Direttore commerciale</option>
-                    <option value="Buyer">Buyer</option>
-                    <option value="Alto dirigente">Alto dirigente</option>
-                </select>
-            </div>
-            <button type="button" class="remove-interlocutore-btn" title="Rimuovi interlocutore">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clip-rule="evenodd" /></svg>
-            </button>
-        `;
+        div.innerHTML = `<div class="form-group"><label for="contactName-${id}">Nome e Cognome</label><input type="text" id="contactName-${id}" class="contactName" placeholder="Nome Cognome" required></div><div class="form-group"><label for="contactRole-${id}">Ruolo</label><select id="contactRole-${id}" class="contactRole" required><option value="Titolare">Titolare</option><option value="Venditore di sala">Venditore di sala</option><option value="Responsabile di sede">Responsabile di sede</option><option value="Direttore commerciale">Direttore commerciale</option><option value="Buyer">Buyer</option><option value="Alto dirigente">Alto dirigente</option></select></div><button type="button" class="remove-interlocutore-btn" title="Rimuovi interlocutore"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clip-rule="evenodd" /></svg></button>`;
         interlocutoriContainer.appendChild(div);
-        div.querySelector('.remove-interlocutore-btn').addEventListener('click', () => {
-            div.remove();
-        });
+        div.querySelector('.remove-interlocutore-btn').addEventListener('click', () => div.remove());
     }
 
-    // Funzione principale per la generazione del file PDF
     async function generatePDF(data) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -140,36 +122,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const WIDTH = doc.internal.pageSize.getWidth();
         let y = MARGIN;
 
-        // Formatta la data in lettere (es. "30 giugno 2025")
         const visitDateObj = new Date(data.visitDate);
-        // Correzione per il fuso orario per evitare che la data scali al giorno precedente
         visitDateObj.setMinutes(visitDateObj.getMinutes() + visitDateObj.getTimezoneOffset());
-        const dateInLettere = new Intl.DateTimeFormat('it-IT', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        }).format(visitDateObj);
-
-        // Titolo del PDF aggiornato con il luogo
+        const dateInLettere = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }).format(visitDateObj);
         const pdfTitle = `S${data.weekNumber} - Visita ${data.clientName} a ${data.location} in data ${dateInLettere}`;
 
-        // Funzione helper per aggiungere testo e gestire il cambio pagina
         const addText = (text, options) => {
             const defaults = { x: MARGIN, size: 11, style: 'normal', color: [50,50,50], space: 5, align: null };
             const opt = { ...defaults, ...options };
-            if (y + opt.space > 280) { // Margine inferiore di sicurezza
-                doc.addPage();
-                y = MARGIN;
-            }
+            if (y + opt.space > 280) { doc.addPage(); y = MARGIN; }
             doc.setFont(FONT, opt.style).setFontSize(opt.size).setTextColor(opt.color[0], opt.color[1] || opt.color[0], opt.color[2] || opt.color[0]);
             doc.text(text, opt.x, y, opt.align ? {align: opt.align} : undefined);
             y += opt.space;
         };
 
-        // Aggiunge il titolo dinamico al PDF
         addText(pdfTitle, { size: 16, style: 'bold', color: [44, 62, 80], x: WIDTH / 2, align: 'center', space: 15 });
         
-        // Dati dell'Area Manager e Agente
         doc.setFont(FONT, 'normal').setFontSize(10).setTextColor(100);
         doc.text(`Area Manager: ${data.areaManager}`, MARGIN, y);
         doc.text(`Agente: ${data.agent}`, WIDTH - MARGIN, y, { align: 'right' });
@@ -177,9 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.setLineWidth(0.5).line(MARGIN, y, WIDTH - MARGIN, y);
         y += 10;
         
-        // Sezione Riepilogo Visita
         addText('Riepilogo Visita', { size: 12, style: 'bold', color: [74,144,226], space: 7 });
         const printRow = (label, value) => {
+            if (!value || value === 'N/D') return; // Non stampa la riga se il valore è vuoto o N/D
             doc.setFont(FONT, 'bold').setFontSize(11).setTextColor(50);
             doc.text(label, MARGIN, y);
             doc.setFont(FONT, 'normal');
@@ -190,15 +158,15 @@ document.addEventListener('DOMContentLoaded', () => {
         printRow('Settimana N°:', data.weekNumber);
         printRow('Paese:', data.country);
         printRow('Cliente:', data.clientName);
-        printRow('Luogo / Sede:', data.location);
+        printRow('Comune:', data.location);
+        printRow('Dipartimento:', data.department);
+        printRow('Regione:', data.region);
         y += 5;
 
-        // Sezione Interlocutori
         addText('Interlocutori', { size: 12, style: 'bold', color: [74,144,226], space: 7 });
         data.interlocutori.forEach(p => { printRow(`- ${p.name}`, `(${p.role})`); });
         y += 5;
         
-        // Sezioni testuali (Argomenti e Accordi)
         const printSection = (title, content) => {
             addText(title, { size: 12, style: 'bold', color: [74,144,226], space: 7 });
             const splitText = doc.splitTextToSize(content || 'Nessun dato.', WIDTH - (MARGIN * 2));
@@ -210,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
             printSection('Reminder Impostato:', `Follow-up richiesto per il ${new Date(data.reminderDate).toLocaleDateString('it-IT')}.`);
         }
 
-        // Sezione Allegati
         if (data.attachments.length > 0) {
             const imageFiles = data.attachments.filter(f => f.type.startsWith('image/'));
             if (imageFiles.length > 0) {
@@ -233,33 +200,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // --- NUOVO FORMATO NOME FILE ---
         const year = visitDateObj.getFullYear();
         const week = String(data.weekNumber).padStart(2, '0');
         const day = String(visitDateObj.getDate()).padStart(2, '0');
-        const month = String(visitDateObj.getMonth() + 1).padStart(2, '0'); // I mesi sono 0-indexed
-
-        // Pulisce i nomi per evitare caratteri non validi nei nomi dei file, ma mantiene gli spazi
+        const month = String(visitDateObj.getMonth() + 1).padStart(2, '0');
         const cleanClientName = data.clientName.replace(/[\\/:*?"<>|]/g, '').trim();
         const cleanLocation = data.location.replace(/[\\/:*?"<>|]/g, '').trim();
-        
         const fileName = `${year}_S${week} (${day}-${month}) - ${cleanClientName} _ ${cleanLocation}.pdf`;
         doc.save(fileName);
     }
 
-    // Genera il file .ics per il calendario
     function generateICS(data) {
         const formatDate = (dateStr) => dateStr.replace(/-/g, '');
         const interlocutoriText = data.interlocutori.map(p => `${p.name} (${p.role})`).join(', ');
-        const description = [
-            `CLIENTE: ${data.clientName}`,
-            `LUOGO: ${data.location}`,
-            `AREA MANAGER: ${data.areaManager}`,
-            `AGENTE: ${data.agent}`,
-            `INTERLOCUTORI: ${interlocutoriText}`,
-            `\\nARGOMENTI TRATTATI:\\n${data.topics.replace(/\n/g, '\\n')}`,
-            `\\nACCORDI PRESI:\\n${data.agreements.replace(/\n/g, '\\n')}`
-        ].join('\\n');
+        const description = [`CLIENTE: ${data.clientName}`, `LUOGO: ${data.location}`, `AREA MANAGER: ${data.areaManager}`, `AGENTE: ${data.agent}`, `INTERLOCUTORI: ${interlocutoriText}`, `\\nARGOMENTI TRATTATI:\\n${data.topics.replace(/\n/g, '\\n')}`, `\\nACCORDI PRESI:\\n${data.agreements.replace(/\n/g, '\\n')}`].join('\\n');
         const icsContent = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ReportGenerator//IT', 'BEGIN:VEVENT', `UID:${Date.now()}@reportapp.com`, `DTSTAMP:${new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${formatDate(data.reminderDate)}`, `SUMMARY:Follow-up: ${data.clientName}`, `DESCRIPTION:${description}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
         const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
         const link = document.createElement('a');
@@ -269,13 +223,12 @@ document.addEventListener('DOMContentLoaded', () => {
         URL.revokeObjectURL(link.href);
     }
     
-    // Raccoglie tutti i dati dal form in un unico oggetto
     function getFormData() {
         const interlocutori = [];
         document.querySelectorAll('.interlocutore-group').forEach(group => {
             const nameInput = group.querySelector('.contactName');
             const roleInput = group.querySelector('.contactRole');
-            if (nameInput.value.trim()) { // Aggiungi solo se c'è un nome
+            if (nameInput.value.trim()) {
                 interlocutori.push({ name: nameInput.value, role: roleInput.value });
             }
         });
@@ -284,10 +237,12 @@ document.addEventListener('DOMContentLoaded', () => {
             areaManager: 'Filippo Masini',
             visitDate: visitDateInput.value,
             weekNumber: weekNumberInput.value,
-            country: document.getElementById('country').value,
+            country: countrySelect.value,
             agent: agentSelect.value,
             clientName: document.getElementById('clientName').value,
             location: locationInput.value,
+            department: departmentInput.value,
+            region: regionInput.value,
             interlocutori: interlocutori,
             topics: document.getElementById('topics').value,
             agreements: document.getElementById('agreements').value,
@@ -301,6 +256,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     visitDateInput.addEventListener('change', (e) => updateWeekNumber(new Date(e.target.value)));
     locationInput.addEventListener('input', handleAutocomplete);
+    countrySelect.addEventListener('change', () => { 
+        locationInput.value = ''; 
+        departmentInput.value = '';
+        regionInput.value = '';
+        autocompleteResults.innerHTML = '';
+    });
     document.addEventListener('click', (e) => { if (!e.target.closest('.autocomplete-container')) autocompleteResults.innerHTML = ''; });
     addInterlocutoreBtn.addEventListener('click', addInterlocutore);
     
@@ -315,7 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fileListDiv.innerHTML = Array.from(fileInput.files).map(f => `<div>${f.name}</div>`).join('');
     });
     
-    // Listener per il pulsante di generazione PDF
     generatePdfBtn.addEventListener('click', () => {
         if (form.checkValidity()) {
             const reportData = getFormData();
@@ -326,7 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Listener per il pulsante di generazione ICS
     generateIcsBtn.addEventListener('click', () => {
         if (form.checkValidity()) {
             const reportData = getFormData();
@@ -341,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Listener per il pulsante di reset del form
     resetButton.addEventListener('click', () => {
         form.reset();
         fileListDiv.innerHTML = '';
