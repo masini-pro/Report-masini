@@ -1,17 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Logica di Login con Password Cammuffata (Base64) ---
+    // --- Logica di Login ---
     const loginOverlay = document.getElementById('login-overlay');
     const passwordInput = document.getElementById('password-input');
     const loginButton = document.getElementById('login-button');
     const errorMessage = document.getElementById('error-message');
     const mainContainer = document.querySelector('.container');
     
-    // La password è stata codificata in Base64 per non essere leggibile in chiaro.
+    // Valore di controllo per la password.
     const correctPasswordEncoded = 'cm90ZWdsaWE=';
 
     const attemptLogin = () => {
-        // Codifica l'input dell'utente in Base64 prima del confronto
+        // Confronta il valore inserito con quello di controllo.
         const enteredPasswordEncoded = btoa(passwordInput.value);
 
         if (enteredPasswordEncoded === correctPasswordEncoded) {
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1200; // Aumentata leggermente per una migliore qualità
+                    const MAX_WIDTH = 1200;
                     const MAX_HEIGHT = 1200;
                     let width = img.width;
                     let height = img.height;
@@ -357,7 +357,29 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.save(fileName);
     }
 
-    function generateICS(data) { /* ... (invariata) ... */ }
+    function generateICS(data) {
+        const formatDate = (dateStr) => dateStr.replace(/-/g, '');
+        const interlocutoriText = data.interlocutori.map(p => `${p.name} (${p.role})`).join(', ');
+        const description = [
+            `CLIENTE: ${data.clientName}`,
+            `LUOGO: ${data.location}`,
+            `AREA MANAGER: ${data.areaManager}`,
+            `AGENTE: ${data.agent}`,
+            `INTERLOCUTORI: ${interlocutoriText}`,
+            `\\nARGOMENTI TRATTATI:\\n${data.topics.replace(/\n/g, '\\n')}`,
+            `\\nACCORDI PRESI:\\n${data.agreements.replace(/\n/g, '\\n')}`
+        ].join('\\n');
+        const icsContent = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ReportGenerator//IT', 'BEGIN:VEVENT', `UID:${Date.now()}@reportapp.com`, `DTSTAMP:${new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${formatDate(data.reminderDate)}`, `SUMMARY:Follow-up: ${data.clientName}`, `DESCRIPTION:${description}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+        
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Reminder_${data.clientName}_${data.reminderDate}.ics`;
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
     
     function getFormData() {
         const interlocutori = [];
