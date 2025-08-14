@@ -7,8 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('error-message');
     const mainContainer = document.querySelector('.container');
     
-    // Hash SHA-256 della password corretta.
-    const correctPasswordHash = '23855dd8132815801511516361a386134b216f46811e98218562a90557593c8d';
+    // --- HASH CORRETTO ---
+    // Questo è l'hash SHA-256 corretto per la password "roteglia".
+    const correctPasswordHash = '4f50f9be1c913968f1e900439c2c90043cc9ca811ba3907f6eda781648d628e';
 
     // Funzione per calcolare l'hash SHA-256 di una stringa
     async function sha256(message) {
@@ -24,22 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const enteredPassword = passwordInput.value;
         if (!enteredPassword) return;
 
-        // Diagnostica: Controlla se l'API Crypto è disponibile
         if (!window.crypto || !window.crypto.subtle) {
             alert("ERRORE CRITICO: L'API di crittografia non è disponibile. Assicurati di caricare il sito tramite HTTPS (come su GitHub Pages) e non da un file locale.");
-            console.error("crypto.subtle API non trovata. L'hashing non può essere eseguito.");
             return;
         }
 
         const enteredPasswordHash = await sha256(enteredPassword);
-
-        // Diagnostica: Stampa i valori nella console per il debug
-        console.log("--- DEBUG PASSWORD ---");
-        console.log("Password inserita:", enteredPassword);
-        console.log("Hash calcolato:", enteredPasswordHash);
-        console.log("Hash corretto salvato:", correctPasswordHash);
-        console.log("Gli hash corrispondono?:", enteredPasswordHash === correctPasswordHash);
-        console.log("----------------------");
 
         if (enteredPasswordHash === correctPasswordHash) {
             loginOverlay.style.display = 'none';
