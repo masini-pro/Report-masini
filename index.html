@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- NUOVO: Impedisce ai motori di ricerca di indicizzare la pagina -->
+    <meta name="robots" content="noindex, nofollow">
     <title>Generatore Report Visite</title>
     <meta name="description" content="App per la generazione di report visite clienti.">
     <link rel="stylesheet" href="style.css">
@@ -14,7 +16,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
+    <!-- NUOVO: Schermata di Login -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>Accesso Riservato</h2>
+            <p>Inserisci la password per continuare.</p>
+            <input type="password" id="password-input" placeholder="Password">
+            <button id="login-button">Accedi</button>
+            <p id="error-message" class="hidden">Password non corretta.</p>
+        </div>
+    </div>
+
+    <!-- Contenuto principale dell'app, nascosto di default -->
+    <div class="container" style="display: none;">
         <header>
             <div class="header-content">
                 <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-2.1 6.3c-.528 1.591.748 3.024 2.34 2.34l6.3-2.1a5.25 5.25 0 002.214-1.32l8.4-8.4z"/><path d="M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z"/></svg>
@@ -24,7 +38,7 @@
         </header>
         <main>
             <form id="reportForm" novalidate>
-                <!-- Dati Generali -->
+                 <!-- ... il resto del form rimane invariato ... -->
                 <fieldset>
                     <legend>Dati Generali</legend>
                     <div class="form-grid">
@@ -52,8 +66,6 @@
                         </div>
                     </div>
                 </fieldset>
-
-                <!-- Cliente e Luogo -->
                 <fieldset>
                     <legend>Cliente e Luogo</legend>
                     <div class="form-group">
@@ -65,7 +77,6 @@
                         <input type="text" id="location" placeholder="Digita le prime lettere del comune..." required>
                         <div id="autocompleteResults"></div>
                     </div>
-                    <!-- Campi automatici per Dipartimento e Regione -->
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="department">Dipartimento</label>
@@ -77,8 +88,6 @@
                         </div>
                     </div>
                 </fieldset>
-
-                <!-- Interlocutori -->
                 <fieldset>
                     <legend>Interlocutori Incontrati</legend>
                     <div id="interlocutori-container"></div>
@@ -87,8 +96,6 @@
                         Aggiungi Interlocutore
                     </button>
                 </fieldset>
-                
-                <!-- Dettagli Visita -->
                 <fieldset>
                     <legend>Dettagli Visita</legend>
                     <div class="form-group">
@@ -100,8 +107,6 @@
                         <textarea id="agreements" rows="5" placeholder="Decisioni prese, prossimi passi, offerte da preparare..."></textarea>
                     </div>
                 </fieldset>
-
-                <!-- Azioni Future e Allegati -->
                 <fieldset>
                     <legend>Azioni Future e Allegati</legend>
                     <div class="form-group reminder-section">
@@ -122,12 +127,10 @@
                     <div class="form-group">
                         <label for="attachments">Allegati (Foto o PDF)</label>
                         <input type="file" id="attachments" multiple accept="image/*,application/pdf">
-                        <small>Le immagini verranno incluse nel PDF. Puoi selezionare più file.</small>
+                        <small>Le immagini verranno compresse. Puoi selezionare più file.</small>
                         <div id="file-list"></div>
                     </div>
                 </fieldset>
-
-                <!-- Pulsanti Azione -->
                 <div class="form-actions">
                     <button type="button" id="generatePdfBtn" class="button-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H5zm5.5 8a.5.5 0 00-1 0v3.5a.5.5 0 001 0V10z" clip-rule="evenodd" /><path d="M10 2a.5.5 0 01.5.5v3.5a.5.5 0 01-1 0V2.5A.5.5 0 0110 2z" /></svg>
@@ -147,3 +150,763 @@
     <script src="app.js"></script>
 </body>
 </html>
+```
+
+---
+
+### 2. `style.css` Aggiornato
+
+Ho aggiunto le regole per la schermata di login e il suo aspetto.
+
+
+```css
+/* ... (tutto il CSS precedente rimane invariato) ... */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --secondary-color: #1abc9c;
+    --background-color: #f4f6f8;
+    --text-color: #555;
+    --heading-color: #2c3e50;
+    --container-bg: #ffffff;
+    --border-color: #bdc3c7;
+    --shadow-color: rgba(52, 152, 219, 0.2);
+    --error-color: #e74c3c;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* --- NUOVO: Stile per la schermata di Login --- */
+#login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(44, 62, 80, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.login-box {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+.login-box h2 {
+    color: var(--heading-color);
+    margin-top: 0;
+}
+
+.login-box p {
+    color: #7f8c8d;
+    margin-bottom: 20px;
+}
+
+#password-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+#login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#login-button:hover {
+    background-color: var(--primary-dark);
+}
+
+#error-message {
+    color: var(--error-color);
+    margin-top: 15px;
+    font-size: 0.9em;
+}
+/* ------------------------------------------- */
+
+
+.container {
+    max-width: 850px;
+    margin: 25px auto;
+    padding: 30px;
+    background-color: var(--container-bg);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+header {
+    text-align: center;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-icon {
+    width: 36px;
+    height: 36px;
+    color: var(--primary-color);
+}
+
+header h1 {
+    color: var(--heading-color);
+    font-weight: 700;
+    font-size: 2.2em;
+    margin: 0;
+}
+
+header p {
+    font-size: 1.1em;
+    color: #7f8c8d;
+}
+
+fieldset {
+    border: 1px solid #e0e6ed;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+    background-color: #fbfdff;
+}
+
+legend {
+    font-weight: 600;
+    font-size: 1.2em;
+    color: var(--primary-dark);
+    padding: 0 10px;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.form-group::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    background: linear-gradient(60deg, var(--secondary-color), var(--primary-color), var(--primary-dark), var(--secondary-color));
+    background-size: 300% 300%;
+    border-radius: 8px;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    animation: animated-border 4s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes animated-border {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.form-group:focus-within::before {
+    opacity: 1;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+    position: relative;
+    z-index: 2;
+    padding: 0 2px;
+    width: fit-content;
+    color: var(--heading-color);
+    transition: color 0.3s ease;
+}
+
+.form-group:focus-within label {
+    color: white;
+}
+
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: var(--container-bg);
+    position: relative;
+    z-index: 1;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.form-group:focus-within input,
+.form-group:focus-within select,
+.form-group:focus-within textarea {
+    border-color: transparent;
+    outline: none;
+}
+
+input[readonly] {
+    background-color: #f0f2f5;
+    cursor: not-allowed;
+    color: #777;
+    font-style: italic;
+}
+
+.form-group:focus-within input[readonly] {
+    border-color: var(--border-color);
+}
+.form-group input[readonly]:focus {
+    border-color: var(--border-color);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+.form-group:has(input[readonly]:focus)::before {
+    opacity: 0;
+}
+.form-group:has(input[readonly]:focus) label {
+    color: var(--heading-color);
+}
+
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.autocomplete-container { z-index: 10; }
+#autocompleteResults {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: white; border: 1px solid var(--border-color); border-top: none;
+    border-radius: 0 0 6px 6px; z-index: 1000; max-height: 200px;
+    overflow-y: auto; box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+.autocomplete-item { padding: 10px; cursor: pointer; }
+.autocomplete-item:hover, .autocomplete-item.active { background-color: #e9ecef; }
+.autocomplete-item strong { color: var(--primary-color); }
+
+.interlocutore-group {
+    display: grid; grid-template-columns: 1fr 1fr auto;
+    gap: 15px; align-items: end; margin-bottom: 15px;
+    padding: 15px; border: 1px dashed var(--border-color); border-radius: 6px;
+}
+#addInterlocutore { margin-top: 10px; }
+.remove-interlocutore-btn {
+    background: var(--error-color); color: white; border: none; border-radius: 6px;
+    padding: 12px; cursor: pointer; height: 48px; width: 48px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background-color 0.2s;
+}
+.remove-interlocutore-btn:hover { background: #c0392b; }
+.remove-interlocutore-btn svg { width: 20px; height: 20px; }
+
+.reminder-section { background: #f8f9fa; padding: 15px; border-radius: 6px; }
+.reminder-toggle { display: flex; align-items: center; gap: 10px; }
+.switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--secondary-color); }
+input:checked + .slider:before { transform: translateX(22px); }
+#reminderDateContainer { margin-top: 15px; }
+.hidden { display: none; }
+
+.form-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 15px; margin-top: 30px; }
+button {
+    padding: 14px 22px; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif;
+    border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+#generatePdfBtn, #generateIcsBtn { flex-grow: 1; }
+#generatePdfBtn {
+    background-image: linear-gradient(45deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white; box-shadow: 0 4px 15px var(--shadow-color);
+}
+#generatePdfBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow-color); }
+#generateIcsBtn { background-color: #ecf0f1; color: var(--heading-color); border: 1px solid var(--border-color); }
+#generateIcsBtn:hover { background-color: #dfe6e9; }
+#resetButton { background-color: #95a5a6; color: white; flex-grow: 0; min-width: 150px; }
+#resetButton:hover { background-color: #7f8c8d; }
+.button-secondary { background-color: #ecf0f1; color: var(--heading-color); border: 1px solid var(--border-color); }
+.button-secondary:hover { background-color: #dfe6e9; }
+.button-secondary svg, #generateIcsBtn svg, #generatePdfBtn svg { width: 20px; height: 20px; }
+
+@media (max-width: 700px) {
+    .container { margin: 0; padding: 15px; border-radius: 0; box-shadow: none; }
+    .interlocutore-group { grid-template-columns: 1fr; }
+    .form-actions { flex-direction: column-reverse; }
+    button { width: 100%; }
+}
+```
+
+---
+
+### 3. `app.js` Aggiornato
+
+Questo è il file con le modifiche più sostanziali: logica di login, compressione delle immagini e la nuova, complessa, generazione del layout del PDF.
+
+
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- NUOVO: Logica di Login ---
+    const loginOverlay = document.getElementById('login-overlay');
+    const passwordInput = document.getElementById('password-input');
+    const loginButton = document.getElementById('login-button');
+    const errorMessage = document.getElementById('error-message');
+    const mainContainer = document.querySelector('.container');
+    const correctPassword = 'roteglia';
+
+    const attemptLogin = () => {
+        if (passwordInput.value === correctPassword) {
+            loginOverlay.style.display = 'none';
+            mainContainer.style.display = 'block';
+        } else {
+            errorMessage.classList.remove('hidden');
+            passwordInput.value = '';
+        }
+    };
+
+    loginButton.addEventListener('click', attemptLogin);
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            attemptLogin();
+        }
+    });
+    // -----------------------------
+
+    // Registra il Service Worker per la PWA e l'uso offline
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(error => console.log('Errore registrazione Service Worker:', error));
+    }
+
+    // --- ELEMENTI DEL DOM ---
+    const form = document.getElementById('reportForm');
+    const visitDateInput = document.getElementById('visitDate');
+    const weekNumberInput = document.getElementById('weekNumber');
+    const countrySelect = document.getElementById('country');
+    const agentSelect = document.getElementById('agent');
+    const locationInput = document.getElementById('location');
+    const departmentInput = document.getElementById('department');
+    const regionInput = document.getElementById('region');
+    const autocompleteResults = document.getElementById('autocompleteResults');
+    const interlocutoriContainer = document.getElementById('interlocutori-container');
+    const addInterlocutoreBtn = document.getElementById('addInterlocutore');
+    const reminderToggle = document.getElementById('reminderToggle');
+    const reminderDateContainer = document.getElementById('reminderDateContainer');
+    const resetButton = document.getElementById('resetButton');
+    const fileInput = document.getElementById('attachments');
+    const fileListDiv = document.getElementById('file-list');
+    const generatePdfBtn = document.getElementById('generatePdfBtn');
+    const generateIcsBtn = document.getElementById('generateIcsBtn');
+
+    let comuniData = [];
+    let isComuniLoaded = false;
+    let selectedCommuneData = null;
+
+    // --- CARICAMENTO DATI INIZIALI ---
+    fetch('comuni.json').then(r => r.json()).then(d => { comuniData = d; isComuniLoaded = true; }).catch(console.error);
+    fetch('agenti.json').then(r => r.json()).then(d => {
+        d.forEach(a => agentSelect.add(new Option(a, a)));
+    }).catch(console.error);
+
+    const today = new Date();
+    visitDateInput.value = today.toISOString().split('T')[0];
+    updateWeekNumber(today);
+    addInterlocutore();
+
+    // --- FUNZIONI ---
+
+    function getWeekNumber(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    function updateWeekNumber(date) {
+        if (date) weekNumberInput.value = getWeekNumber(date);
+    }
+
+    function handleAutocomplete(e) {
+        const query = e.target.value.toLowerCase().trim();
+        const selectedCountry = countrySelect.value;
+        autocompleteResults.innerHTML = '';
+        departmentInput.value = '';
+        regionInput.value = '';
+        selectedCommuneData = null;
+
+        if (query.length < 2 || !isComuniLoaded) return;
+        
+        const filteredComuni = comuniData
+            .filter(c => c.pays === selectedCountry && c.commune.toLowerCase().startsWith(query))
+            .slice(0, 7);
+        
+        filteredComuni.forEach(comuneObj => {
+            const div = document.createElement('div');
+            div.classList.add('autocomplete-item');
+            div.innerHTML = `<strong>${comuneObj.commune.substring(0, query.length)}</strong>${comuneObj.commune.substring(query.length)}`;
+            div.addEventListener('click', () => selectCommune(comuneObj));
+            autocompleteResults.appendChild(div);
+        });
+    }
+    
+    function selectCommune(comuneObj) {
+        selectedCommuneData = comuneObj;
+        locationInput.value = comuneObj.commune;
+        departmentInput.value = comuneObj.departement ? `${comuneObj.departement} (${comuneObj.code_departement})` : 'N/D';
+        regionInput.value = comuneObj.region || 'N/D';
+        autocompleteResults.innerHTML = '';
+    }
+
+    function addInterlocutore() {
+        const id = Date.now();
+        const div = document.createElement('div');
+        div.className = 'interlocutore-group';
+        div.id = `interlocutore-${id}`;
+        div.innerHTML = `<div class="form-group"><label for="contactName-${id}">Nome e Cognome</label><input type="text" id="contactName-${id}" class="contactName" placeholder="Nome Cognome" required></div><div class="form-group"><label for="contactRole-${id}">Ruolo</label><select id="contactRole-${id}" class="contactRole" required><option value="Titolare">Titolare</option><option value="Venditore di sala">Venditore di sala</option><option value="Responsabile di sede">Responsabile di sede</option><option value="Direttore commerciale">Direttore commerciale</option><option value="Buyer">Buyer</option><option value="Alto dirigente">Alto dirigente</option></select></div><button type="button" class="remove-interlocutore-btn" title="Rimuovi interlocutore"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clip-rule="evenodd" /></svg></button>`;
+        interlocutoriContainer.appendChild(div);
+        div.querySelector('.remove-interlocutore-btn').addEventListener('click', () => div.remove());
+    }
+
+    // --- NUOVO: Funzione per comprimere le immagini ---
+    async function compressImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = event => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1024;
+                    const MAX_HEIGHT = 1024;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Converte in JPEG con qualità 0.7 (buon compromesso)
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.onerror = reject;
+            };
+            reader.onerror = reject;
+        });
+    }
+
+    async function loadImageAsBase64(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) return null;
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error("Errore nel caricamento dell'immagine:", error);
+            return null;
+        }
+    }
+
+    async function generatePDF(data) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        
+        const FONT = 'Helvetica';
+        const MARGIN = 15; // Margine ridotto per far stare tutto
+        const WIDTH = doc.internal.pageSize.getWidth();
+        let y = MARGIN;
+
+        const visitDateObj = new Date(data.visitDate);
+        visitDateObj.setMinutes(visitDateObj.getMinutes() + visitDateObj.getTimezoneOffset());
+        const dateInLettere = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }).format(visitDateObj);
+        const pdfTitle = `S${data.weekNumber} - Visita ${data.clientName} a ${data.location} in data ${dateInLettere}`;
+
+        // Titolo con auto-wrap
+        doc.setFont(FONT, 'bold').setFontSize(16).setTextColor(44, 62, 80);
+        const titleLines = doc.splitTextToSize(pdfTitle, WIDTH - MARGIN * 2);
+        doc.text(titleLines, WIDTH / 2, y, { align: 'center' });
+        y += titleLines.length * 7 + 5;
+
+        doc.setFont(FONT, 'normal').setFontSize(10).setTextColor(100);
+        doc.text(`Area Manager: ${data.areaManager}`, MARGIN, y);
+        doc.text(`Agente: ${data.agent}`, WIDTH - MARGIN, y, { align: 'right' });
+        y += 7;
+        doc.setLineWidth(0.5).line(MARGIN, y, WIDTH - MARGIN, y);
+        y += 7;
+        
+        // Caricamento mappa
+        let mapBase64 = null;
+        let mapFileName = null;
+        if (data.country === 'Francia' && data.departmentCode) {
+            mapFileName = `${data.departmentCode}.jpeg`;
+        } else if (data.country === 'Monaco') {
+            mapFileName = '06.jpeg';
+        } else if (data.country === 'Belgio') {
+            mapFileName = 'belgium.jpeg';
+        } else if (data.country === 'Lussemburgo') {
+            mapFileName = 'luxembourg.jpeg';
+        }
+        
+        if (mapFileName) {
+            const mapUrl = `https://raw.githubusercontent.com/masini-pro/Report-masini/main/FR_maps/${mapFileName}`;
+            mapBase64 = await loadImageAsBase64(mapUrl);
+        }
+
+        const mapSectionYStart = y;
+        let textMaxWidth = WIDTH - MARGIN * 2;
+        if (mapBase64) {
+            const mapWidth = 60;
+            const mapHeight = 60;
+            const mapX = WIDTH - MARGIN - mapWidth;
+            doc.addImage(mapBase64, 'JPEG', mapX, mapSectionYStart, mapWidth, mapHeight);
+            textMaxWidth = mapX - MARGIN - 5;
+        }
+
+        let tempY = y;
+        const addSectionTitle = (title) => {
+            doc.setFont(FONT, 'bold').setFontSize(12).setTextColor(74, 144, 226);
+            doc.text(title, MARGIN, tempY, { maxWidth: textMaxWidth });
+            tempY += 6;
+        };
+
+        const printRow = (label, value) => {
+            if (!value || value === 'N/D') return;
+            doc.setFont(FONT, 'bold').setFontSize(10).setTextColor(50);
+            const labelWidth = doc.getTextWidth(label);
+            doc.text(label, MARGIN, tempY, { maxWidth: textMaxWidth });
+            doc.setFont(FONT, 'normal');
+            doc.text(value, MARGIN + labelWidth + 2, tempY, { maxWidth: textMaxWidth - labelWidth - 2 });
+            tempY += 5;
+        };
+        
+        addSectionTitle('Riepilogo Visita');
+        printRow('Data:', `${new Date(data.visitDate).toLocaleDateString('it-IT')} (S${data.weekNumber})`);
+        printRow('Paese:', data.country);
+        printRow('Cliente:', data.clientName);
+        printRow('Comune:', data.location);
+        printRow('Dipartimento:', data.department);
+        printRow('Regione:', data.region);
+        tempY += 4;
+
+        addSectionTitle('Interlocutori');
+        data.interlocutori.forEach(p => {
+            // Layout corretto per nome e ruolo
+            doc.setFont(FONT, 'bold').setFontSize(10).setTextColor(50);
+            const nameLines = doc.splitTextToSize(`- ${p.name}`, textMaxWidth / 2 - 5);
+            doc.text(nameLines, MARGIN, tempY);
+            doc.setFont(FONT, 'normal').setFontSize(9).setTextColor(100);
+            doc.text(`(${p.role})`, MARGIN + textMaxWidth / 2, tempY);
+            tempY += nameLines.length * 5;
+        });
+        
+        y = Math.max(tempY, mapSectionYStart + (mapBase64 ? 65 : 0));
+        
+        const printLongTextSection = (title, content) => {
+            y += 6;
+            doc.setFont(FONT, 'bold').setFontSize(12).setTextColor(74, 144, 226);
+            doc.text(title, MARGIN, y);
+            y += 6;
+            doc.setFont(FONT, 'normal').setFontSize(10).setTextColor(50);
+            const splitText = doc.splitTextToSize(content || 'Nessun dato.', WIDTH - (MARGIN * 2));
+            doc.text(splitText, MARGIN, y);
+            y += splitText.length * 5;
+        };
+        
+        printLongTextSection('Argomenti Trattati:', data.topics);
+        printLongTextSection('Cosa è stato concordato?', data.agreements);
+        if (data.hasReminder) {
+            printLongTextSection('Reminder Impostato:', `Follow-up richiesto per il ${new Date(data.reminderDate).toLocaleDateString('it-IT')}.`);
+        }
+
+        // Gestione Pagine Foto
+        if (data.attachments.length > 0) {
+            const compressedImages = await Promise.all(
+                data.attachments.filter(f => f.type.startsWith('image/')).map(compressImage)
+            );
+            
+            const CHUNK_SIZE = 4;
+            for (let i = 0; i < compressedImages.length; i += CHUNK_SIZE) {
+                const chunk = compressedImages.slice(i, i + CHUNK_SIZE);
+                doc.addPage();
+                doc.setFont(FONT, 'bold').setFontSize(14).setTextColor(44, 62, 80);
+                doc.text(`Allegati Fotografici (Pagina ${Math.floor(i / CHUNK_SIZE) + 1})`, WIDTH / 2, MARGIN, { align: 'center' });
+
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const contentHeight = pageHeight - MARGIN * 2;
+                const contentWidth = WIDTH - MARGIN * 2;
+
+                if (chunk.length === 1) {
+                    doc.addImage(chunk[0], 'JPEG', MARGIN, MARGIN + 10, contentWidth, contentHeight - 10, undefined, 'FAST');
+                } else if (chunk.length === 2) {
+                    const imgHeight = (contentHeight - 15) / 2;
+                    doc.addImage(chunk[0], 'JPEG', MARGIN, MARGIN + 10, contentWidth, imgHeight, undefined, 'FAST');
+                    doc.addImage(chunk[1], 'JPEG', MARGIN, MARGIN + 20 + imgHeight, contentWidth, imgHeight, undefined, 'FAST');
+                } else { // 3 o 4 immagini
+                    const imgWidth = (contentWidth - 5) / 2;
+                    const imgHeight = (contentHeight - 15) / 2;
+                    doc.addImage(chunk[0], 'JPEG', MARGIN, MARGIN + 10, imgWidth, imgHeight, undefined, 'FAST');
+                    if (chunk[1]) doc.addImage(chunk[1], 'JPEG', MARGIN + imgWidth + 5, MARGIN + 10, imgWidth, imgHeight, undefined, 'FAST');
+                    if (chunk[2]) doc.addImage(chunk[2], 'JPEG', MARGIN, MARGIN + 15 + imgHeight, imgWidth, imgHeight, undefined, 'FAST');
+                    if (chunk[3]) doc.addImage(chunk[3], 'JPEG', MARGIN + imgWidth + 5, MARGIN + 15 + imgHeight, imgWidth, imgHeight, undefined, 'FAST');
+                }
+            }
+        }
+        
+        const year = visitDateObj.getFullYear();
+        const week = String(data.weekNumber).padStart(2, '0');
+        const day = String(visitDateObj.getDate()).padStart(2, '0');
+        const month = String(visitDateObj.getMonth() + 1).padStart(2, '0');
+        const cleanClientName = data.clientName.replace(/[\\/:*?"<>|]/g, '').trim();
+        const cleanLocation = data.location.replace(/[\\/:*?"<>|]/g, '').trim();
+        const fileName = `${year}_S${week} (${day}-${month}) - ${cleanClientName} _ ${cleanLocation}.pdf`;
+        doc.save(fileName);
+    }
+
+    function generateICS(data) { /* ... (invariata) ... */ }
+    
+    function getFormData() {
+        const interlocutori = [];
+        document.querySelectorAll('.interlocutore-group').forEach(group => {
+            const nameInput = group.querySelector('.contactName');
+            const roleInput = group.querySelector('.contactRole');
+            if (nameInput.value.trim()) {
+                interlocutori.push({ name: nameInput.value, role: roleInput.value });
+            }
+        });
+
+        return {
+            areaManager: 'Filippo Masini',
+            visitDate: visitDateInput.value,
+            weekNumber: weekNumberInput.value,
+            country: countrySelect.value,
+            agent: agentSelect.value,
+            clientName: document.getElementById('clientName').value,
+            location: locationInput.value,
+            department: departmentInput.value,
+            region: regionInput.value,
+            departmentCode: selectedCommuneData ? selectedCommuneData.code_departement : null,
+            interlocutori: interlocutori,
+            topics: document.getElementById('topics').value,
+            agreements: document.getElementById('agreements').value,
+            hasReminder: reminderToggle.checked,
+            reminderDate: document.getElementById('reminderDate').value,
+            attachments: Array.from(fileInput.files)
+        };
+    }
+
+    // --- EVENT LISTENERS ---
+    
+    visitDateInput.addEventListener('change', (e) => updateWeekNumber(new Date(e.target.value)));
+    locationInput.addEventListener('input', handleAutocomplete);
+    countrySelect.addEventListener('change', () => { 
+        locationInput.value = ''; 
+        departmentInput.value = '';
+        regionInput.value = '';
+        autocompleteResults.innerHTML = '';
+        selectedCommuneData = null;
+    });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.autocomplete-container')) autocompleteResults.innerHTML = ''; });
+    addInterlocutoreBtn.addEventListener('click', addInterlocutore);
+    
+    reminderToggle.addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+        reminderDateContainer.classList.toggle('hidden', !isChecked);
+        generateIcsBtn.classList.toggle('hidden', !isChecked);
+        document.getElementById('reminderDate').required = isChecked;
+    });
+
+    fileInput.addEventListener('change', () => {
+        fileListDiv.innerHTML = Array.from(fileInput.files).map(f => `<div>${f.name}</div>`).join('');
+    });
+    
+    generatePdfBtn.addEventListener('click', () => {
+        if (form.checkValidity()) {
+            const reportData = getFormData();
+            generatePDF(reportData);
+        } else {
+            form.reportValidity();
+            alert('Per favore, compila tutti i campi obbligatori.');
+        }
+    });
+
+    generateIcsBtn.addEventListener('click', () => {
+        if (form.checkValidity()) {
+            const reportData = getFormData();
+            if(reportData.hasReminder && reportData.reminderDate){
+                generateICS(reportData);
+            } else {
+                alert('Per generare un reminder, attiva l\'opzione e scegli una data.');
+            }
+        } else {
+            form.reportValidity();
+            alert('Per favore, compila tutti i campi obbligatori.');
+        }
+    });
+    
+    resetButton.addEventListener('click', () => {
+        form.reset();
+        fileListDiv.innerHTML = '';
+        interlocutoriContainer.innerHTML = '';
+        addInterlocutore();
+        visitDateInput.value = today.toISOString().split('T')[0];
+        updateWeekNumber(today);
+        reminderDateContainer.classList.add('hidden');
+        generateIcsBtn.classList.add('hidden');
+        selectedCommuneData = null;
+    });
+});
