@@ -1,5 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- Logica di Login ---
+    const loginOverlay = document.getElementById('login-overlay');
+    const passwordInput = document.getElementById('password-input');
+    const loginButton = document.getElementById('login-button');
+    const errorMessage = document.getElementById('error-message');
+    const mainContainer = document.querySelector('.container');
+    const correctPassword = 'roteglia';
+
+    const attemptLogin = () => {
+        if (passwordInput.value === correctPassword) {
+            loginOverlay.style.display = 'none';
+            mainContainer.style.display = 'block';
+        } else {
+            errorMessage.classList.remove('hidden');
+            passwordInput.value = '';
+        }
+    };
+
+    loginButton.addEventListener('click', attemptLogin);
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            attemptLogin();
+        }
+    });
+    // -----------------------------
+
     // Registra il Service Worker per la PWA e l'uso offline
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(error => console.log('Errore registrazione Service Worker:', error));
@@ -27,29 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let comuniData = [];
     let isComuniLoaded = false;
-    let selectedCommuneData = null; // Salva i dati del comune selezionato
+    let selectedCommuneData = null;
 
     // --- CARICAMENTO DATI INIZIALI ---
-    
-    fetch('comuni.json')
-        .then(response => response.ok ? response.json() : Promise.reject('Errore caricamento comuni.json'))
-        .then(data => {
-            comuniData = data;
-            isComuniLoaded = true;
-        })
-        .catch(error => console.error(error));
-    
-    fetch('agenti.json')
-        .then(response => response.ok ? response.json() : Promise.reject('Errore caricamento agenti.json'))
-        .then(data => {
-            data.forEach(agente => {
-                const option = document.createElement('option');
-                option.value = agente;
-                option.textContent = agente;
-                agentSelect.appendChild(option);
-            });
-        })
-        .catch(error => console.error(error));
+    fetch('comuni.json').then(r => r.json()).then(d => { comuniData = d; isComuniLoaded = true; }).catch(console.error);
+    fetch('agenti.json').then(r => r.json()).then(d => {
+        d.forEach(a => agentSelect.add(new Option(a, a)));
+    }).catch(console.error);
 
     const today = new Date();
     visitDateInput.value = today.toISOString().split('T')[0];
@@ -68,14 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateWeekNumber(date) {
         if (date) weekNumberInput.value = getWeekNumber(date);
     }
-    
+
     function handleAutocomplete(e) {
         const query = e.target.value.toLowerCase().trim();
         const selectedCountry = countrySelect.value;
         autocompleteResults.innerHTML = '';
         departmentInput.value = '';
         regionInput.value = '';
-        selectedCommuneData = null; // Resetta i dati
+        selectedCommuneData = null;
 
         if (query.length < 2 || !isComuniLoaded) return;
         
@@ -86,19 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredComuni.forEach(comuneObj => {
             const div = document.createElement('div');
             div.classList.add('autocomplete-item');
-            const match = comuneObj.commune.substring(0, query.length);
-            const rest = comuneObj.commune.substring(query.length);
-            div.innerHTML = `<strong>${match}</strong>${rest}`;
-            
-            div.addEventListener('click', () => {
-                selectCommune(comuneObj);
-            });
+            div.innerHTML = `<strong>${comuneObj.commune.substring(0, query.length)}</strong>${comuneObj.commune.substring(query.length)}`;
+            div.addEventListener('click', () => selectCommune(comuneObj));
             autocompleteResults.appendChild(div);
         });
     }
     
     function selectCommune(comuneObj) {
-        selectedCommuneData = comuneObj; // Salva l'oggetto completo
+        selectedCommuneData = comuneObj;
         locationInput.value = comuneObj.commune;
         departmentInput.value = comuneObj.departement ? `${comuneObj.departement} (${comuneObj.code_departement})` : 'N/D';
         regionInput.value = comuneObj.region || 'N/D';
@@ -115,7 +120,46 @@ document.addEventListener('DOMContentLoaded', () => {
         div.querySelector('.remove-interlocutore-btn').addEventListener('click', () => div.remove());
     }
 
-    // --- NUOVA FUNZIONE PER CARICARE L'IMMAGINE COME BASE64 ---
+    // Funzione per comprimere le immagini allegate
+    async function compressImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = event => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1024; // Risoluzione massima per la compressione
+                    const MAX_HEIGHT = 1024;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Converte in JPEG con qualità 0.7 (buon compromesso peso/qualità)
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.onerror = reject;
+            };
+            reader.onerror = reject;
+        });
+    }
+
     async function loadImageAsBase64(url) {
         try {
             const response = await fetch(url);
@@ -138,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const doc = new jsPDF({ unit: 'mm', format: 'a4' });
         
         const FONT = 'Helvetica';
-        const MARGIN = 20;
+        const MARGIN = 15;
         const WIDTH = doc.internal.pageSize.getWidth();
         let y = MARGIN;
 
@@ -147,101 +191,150 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateInLettere = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }).format(visitDateObj);
         const pdfTitle = `S${data.weekNumber} - Visita ${data.clientName} a ${data.location} in data ${dateInLettere}`;
 
-        const addText = (text, options) => {
-            const defaults = { x: MARGIN, y: y, size: 11, style: 'normal', color: [50,50,50], space: 5, align: null, maxWidth: 0 };
-            const opt = { ...defaults, ...options };
-            if (opt.y + opt.space > 280) { doc.addPage(); y = MARGIN; opt.y = y; }
-            doc.setFont(FONT, opt.style).setFontSize(opt.size).setTextColor(opt.color[0], opt.color[1] || opt.color[0], opt.color[2] || opt.color[0]);
-            doc.text(text, opt.x, opt.y, { align: opt.align, maxWidth: opt.maxWidth > 0 ? opt.maxWidth : undefined });
-            y = opt.y + opt.space;
-        };
+        // Titolo con gestione a capo automatica
+        doc.setFont(FONT, 'bold').setFontSize(16).setTextColor(44, 62, 80);
+        const titleLines = doc.splitTextToSize(pdfTitle, WIDTH - MARGIN * 2);
+        doc.text(titleLines, WIDTH / 2, y, { align: 'center' });
+        y += titleLines.length * 7 + 5;
 
-        addText(pdfTitle, { size: 16, style: 'bold', color: [44, 62, 80], x: WIDTH / 2, align: 'center', space: 15 });
-        
         doc.setFont(FONT, 'normal').setFontSize(10).setTextColor(100);
         doc.text(`Area Manager: ${data.areaManager}`, MARGIN, y);
         doc.text(`Agente: ${data.agent}`, WIDTH - MARGIN, y, { align: 'right' });
-        y += 10;
+        y += 7;
         doc.setLineWidth(0.5).line(MARGIN, y, WIDTH - MARGIN, y);
-        y += 10;
+        y += 7;
         
+        // Logica per caricare la mappa corretta
         let mapBase64 = null;
-        if (data.departmentCode) {
-            // Usa il link raw di GitHub per l'accesso diretto all'immagine
-            const mapUrl = `https://raw.githubusercontent.com/masini-pro/Report-masini/main/FR_maps/${data.departmentCode}.jpeg`;
+        let mapFileName = null;
+        if (data.country === 'Francia' && data.departmentCode) {
+            mapFileName = `${data.departmentCode}.jpeg`;
+        } else if (data.country === 'Monaco') {
+            mapFileName = '06.jpeg'; // Usa la mappa delle Alpi Marittime per Monaco
+        } else if (data.country === 'Belgio') {
+            mapFileName = 'belgium.jpeg';
+        } else if (data.country === 'Lussemburgo') {
+            mapFileName = 'luxembourg.jpeg';
+        }
+        
+        if (mapFileName) {
+            // Assicurati che il percorso corrisponda a quello su GitHub
+            const mapUrl = `https://raw.githubusercontent.com/masini-pro/Report-masini/main/FR_maps/${mapFileName}`;
             mapBase64 = await loadImageAsBase64(mapUrl);
         }
 
         const mapSectionYStart = y;
-        let textMaxWidth = 0; // Larghezza massima del testo, 0 = piena larghezza
+        let textMaxWidth = WIDTH - MARGIN * 2;
         if (mapBase64) {
-            const mapWidth = 50;
-            const mapHeight = 50;
+            const mapWidth = 60;
+            const mapHeight = 60;
             const mapX = WIDTH - MARGIN - mapWidth;
             doc.addImage(mapBase64, 'JPEG', mapX, mapSectionYStart, mapWidth, mapHeight);
-            textMaxWidth = mapX - MARGIN - 5; // Calcola la larghezza per il testo a sinistra della mappa
+            textMaxWidth = mapX - MARGIN - 5;
         }
 
-        let tempY = y; // Usa una y temporanea per il layout a colonne
+        let tempY = y;
+        const addSectionTitle = (title) => {
+            doc.setFont(FONT, 'bold').setFontSize(12).setTextColor(74, 144, 226);
+            doc.text(title, MARGIN, tempY, { maxWidth: textMaxWidth });
+            tempY += 6;
+        };
+
         const printRow = (label, value) => {
             if (!value || value === 'N/D') return;
-            doc.setFont(FONT, 'bold').setFontSize(11).setTextColor(50);
+            doc.setFont(FONT, 'bold').setFontSize(10).setTextColor(50);
+            const labelWidth = doc.getTextWidth(label);
             doc.text(label, MARGIN, tempY, { maxWidth: textMaxWidth });
             doc.setFont(FONT, 'normal');
-            doc.text(value, MARGIN + 45, tempY, { maxWidth: textMaxWidth - 45 });
-            tempY += 7;
+            // Gestione a capo del valore per non sovrapporre
+            const valueLines = doc.splitTextToSize(value, textMaxWidth - labelWidth - 2);
+            doc.text(valueLines, MARGIN + labelWidth + 2, tempY);
+            tempY += valueLines.length * 5;
         };
         
-        addText('Riepilogo Visita', { y: tempY, size: 12, style: 'bold', color: [74,144,226], space: 7, maxWidth: textMaxWidth });
-        tempY += 7;
-
-        printRow('Data Visita:', new Date(data.visitDate).toLocaleDateString('it-IT'));
-        printRow('Settimana N°:', data.weekNumber);
+        addSectionTitle('Riepilogo Visita');
+        printRow('Data:', `${new Date(data.visitDate).toLocaleDateString('it-IT')} (S${data.weekNumber})`);
         printRow('Paese:', data.country);
         printRow('Cliente:', data.clientName);
         printRow('Comune:', data.location);
         printRow('Dipartimento:', data.department);
         printRow('Regione:', data.region);
-        
-        // Aggiorna la Y principale alla posizione più bassa tra il testo e la mappa
-        y = Math.max(tempY, mapSectionYStart + (mapBase64 ? 55 : 0));
-        y += 5;
+        tempY += 4;
 
-        addText('Interlocutori', { y: y, size: 12, style: 'bold', color: [74,144,226], space: 7 });
-        tempY = y + 7;
-        data.interlocutori.forEach(p => { printRow(`- ${p.name}`, `(${p.role})`); });
-        y = tempY + 5;
+        addSectionTitle('Interlocutori');
+        data.interlocutori.forEach(p => {
+            // Layout corretto per nome e ruolo per evitare sovrapposizioni
+            doc.setFont(FONT, 'bold').setFontSize(10).setTextColor(50);
+            const nameText = `- ${p.name}`;
+            const roleText = `(${p.role})`;
+            const nameWidth = doc.getTextWidth(nameText);
+            const roleWidth = doc.getTextWidth(roleText);
+
+            if (nameWidth + roleWidth + 5 < textMaxWidth) {
+                // Stanno sulla stessa riga
+                doc.text(nameText, MARGIN, tempY);
+                doc.setFont(FONT, 'normal').setFontSize(9).setTextColor(100);
+                doc.text(roleText, MARGIN + nameWidth + 2, tempY);
+                tempY += 5;
+            } else {
+                // Vanno su righe separate
+                doc.text(nameText, MARGIN, tempY);
+                tempY += 5;
+                doc.setFont(FONT, 'normal').setFontSize(9).setTextColor(100);
+                doc.text(roleText, MARGIN + 5, tempY);
+                tempY += 5;
+            }
+        });
         
-        const printSection = (title, content) => {
-            addText(title, { y: y, size: 12, style: 'bold', color: [74,144,226], space: 7 });
+        y = Math.max(tempY, mapSectionYStart + (mapBase64 ? 65 : 0));
+        
+        const printLongTextSection = (title, content) => {
+            y += 6;
+            doc.setFont(FONT, 'bold').setFontSize(12).setTextColor(74, 144, 226);
+            doc.text(title, MARGIN, y);
+            y += 6;
+            doc.setFont(FONT, 'normal').setFontSize(10).setTextColor(50);
             const splitText = doc.splitTextToSize(content || 'Nessun dato.', WIDTH - (MARGIN * 2));
-            addText(splitText, { y: y + 7, size: 11, style: 'normal', color: [50,50,50], space: 5 * splitText.length + 5 });
-            y += 7 + (5 * splitText.length + 5);
+            doc.text(splitText, MARGIN, y);
+            y += splitText.length * 5;
         };
-        printSection('Argomenti Trattati:', data.topics);
-        printSection('Cosa è stato concordato?', data.agreements);
+        
+        printLongTextSection('Argomenti Trattati:', data.topics);
+        printLongTextSection('Cosa è stato concordato?', data.agreements);
         if (data.hasReminder) {
-            printSection('Reminder Impostato:', `Follow-up richiesto per il ${new Date(data.reminderDate).toLocaleDateString('it-IT')}.`);
+            printLongTextSection('Reminder Impostato:', `Follow-up richiesto per il ${new Date(data.reminderDate).toLocaleDateString('it-IT')}.`);
         }
 
+        // Gestione Pagine Foto con layout intelligente
         if (data.attachments.length > 0) {
-            const imageFiles = data.attachments.filter(f => f.type.startsWith('image/'));
-            if (imageFiles.length > 0) {
-                 doc.addPage();
-                 y = MARGIN;
-                 addText('Allegati Fotografici', { y: y, size: 16, style: 'bold', color: [44,62,80], x: WIDTH / 2, align: 'center', space: 15 });
-                for (const file of imageFiles) {
-                    const imgData = await new Promise(resolve => {
-                        const reader = new FileReader();
-                        reader.onload = e => resolve(e.target.result);
-                        reader.readAsDataURL(file);
-                    });
-                    const imgProps = doc.getImageProperties(imgData);
-                    const imgWidth = WIDTH - MARGIN * 2;
-                    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-                    if (y + imgHeight > 280) { doc.addPage(); y = MARGIN; }
-                    doc.addImage(imgData, 'JPEG', MARGIN, y, imgWidth, imgHeight);
-                    y += imgHeight + 10;
+            const compressedImages = await Promise.all(
+                data.attachments.filter(f => f.type.startsWith('image/')).map(compressImage)
+            );
+            
+            const CHUNK_SIZE = 4;
+            for (let i = 0; i < compressedImages.length; i += CHUNK_SIZE) {
+                const chunk = compressedImages.slice(i, i + CHUNK_SIZE);
+                doc.addPage();
+                doc.setFont(FONT, 'bold').setFontSize(14).setTextColor(44, 62, 80);
+                doc.text(`Allegati Fotografici (Pagina ${Math.floor(i / CHUNK_SIZE) + 1})`, WIDTH / 2, MARGIN, { align: 'center' });
+
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const contentHeight = pageHeight - MARGIN * 2 - 10;
+                const contentWidth = WIDTH - MARGIN * 2;
+
+                if (chunk.length === 1) {
+                    doc.addImage(chunk[0], 'JPEG', MARGIN, MARGIN + 10, contentWidth, contentHeight, undefined, 'FAST');
+                } else if (chunk.length === 2) {
+                    const imgHeight = (contentHeight - 5) / 2;
+                    doc.addImage(chunk[0], 'JPEG', MARGIN, MARGIN + 10, contentWidth, imgHeight, undefined, 'FAST');
+                    doc.addImage(chunk[1], 'JPEG', MARGIN, MARGIN + 15 + imgHeight, contentWidth, imgHeight, undefined, 'FAST');
+                } else { // 3 o 4 immagini
+                    const imgWidth = (contentWidth - 5) / 2;
+                    const imgHeight = (contentHeight - 5) / 2;
+                    doc.addImage(chunk[0], 'JPEG', MARGIN, MARGIN + 10, imgWidth, imgHeight, undefined, 'FAST');
+                    if (chunk[1]) doc.addImage(chunk[1], 'JPEG', MARGIN + imgWidth + 5, MARGIN + 10, imgWidth, imgHeight, undefined, 'FAST');
+                    if (chunk[2]) doc.addImage(chunk[2], 'JPEG', MARGIN, MARGIN + 15 + imgHeight, imgWidth, imgHeight, undefined, 'FAST');
+                    if (chunk[3]) doc.addImage(chunk[3], 'JPEG', MARGIN + imgWidth + 5, MARGIN + 15 + imgHeight, imgWidth, imgHeight, undefined, 'FAST');
                 }
             }
         }
@@ -256,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.save(fileName);
     }
 
-    function generateICS(data) { /* ... (funzione invariata) ... */ }
+    function generateICS(data) { /* ... (invariata) ... */ }
     
     function getFormData() {
         const interlocutori = [];
@@ -278,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
             location: locationInput.value,
             department: departmentInput.value,
             region: regionInput.value,
-            departmentCode: selectedCommuneData ? selectedCommuneData.code_departement : null, // Aggiunge il codice dipartimento
+            departmentCode: selectedCommuneData ? selectedCommuneData.code_departement : null,
             interlocutori: interlocutori,
             topics: document.getElementById('topics').value,
             agreements: document.getElementById('agreements').value,
