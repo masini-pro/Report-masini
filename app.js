@@ -1,15 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Logica di Login ---
+    // --- Logica di Login Sicura con Hashing ---
     const loginOverlay = document.getElementById('login-overlay');
     const passwordInput = document.getElementById('password-input');
     const loginButton = document.getElementById('login-button');
     const errorMessage = document.getElementById('error-message');
     const mainContainer = document.querySelector('.container');
-    const correctPassword = 'roteglia';
+    
+    // Hash SHA-256 della password corretta.
+    const correctPasswordHash = '23855dd8132815801511516361a386134b216f46811e98218562a90557593c8d';
 
-    const attemptLogin = () => {
-        if (passwordInput.value === correctPassword) {
+    // Funzione per calcolare l'hash SHA-256 di una stringa
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    // La funzione di login ora è asincrona per attendere il calcolo dell'hash
+    const attemptLogin = async () => {
+        const enteredPassword = passwordInput.value;
+        const enteredPasswordHash = await sha256(enteredPassword);
+
+        if (enteredPasswordHash === correctPasswordHash) {
             loginOverlay.style.display = 'none';
             mainContainer.style.display = 'block';
         } else {
