@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('error-message');
     const mainContainer = document.querySelector('.container');
     
-    // La password è stata codificata in Base64 per non essere leggibile in chiaro.
+    // La password 'roteglia' è stata codificata in Base64 per non essere leggibile in chiaro.
     const correctPasswordEncoded = 'cm90ZWdsaWE=';
 
     const attemptLogin = () => {
@@ -62,9 +62,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CARICAMENTO DATI INIZIALI ---
     fetch('comuni.json').then(r => r.json()).then(d => { comuniData = d; isComuniLoaded = true; }).catch(console.error);
-    fetch('agenti.json').then(r => r.json()).then(d => {
-        d.forEach(a => agentSelect.add(new Option(a, a)));
-    }).catch(console.error);
+    
+    // Decodifica dei nomi degli agenti
+    fetch('agenti.json')
+        .then(response => response.json())
+        .then(encodedAgents => {
+            encodedAgents.forEach(encodedAgent => {
+                // Usa atob() per decodificare la stringa Base64
+                const decodedAgent = atob(encodedAgent);
+                agentSelect.add(new Option(decodedAgent, decodedAgent));
+            });
+        })
+        .catch(console.error);
+    // ---------------------------------------------------------
 
     const today = new Date();
     visitDateInput.value = today.toISOString().split('T')[0];
