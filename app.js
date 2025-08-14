@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('error-message');
     const mainContainer = document.querySelector('.container');
     
-    // Hash SHA-256 della password corretta.
+    // Hash SHA-256 della password corretta. La password originale non è visibile nel codice.
     const correctPasswordHash = '23855dd8132815801511516361a386134b216f46811e98218562a90557593c8d';
 
     // Funzione per calcolare l'hash SHA-256 di una stringa
@@ -19,9 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return hashHex;
     }
 
-    // La funzione di login ora è asincrona per attendere il calcolo dell'hash
+    // La funzione di login è asincrona per attendere il calcolo dell'hash
     const attemptLogin = async () => {
         const enteredPassword = passwordInput.value;
+        if (!enteredPassword) return; // Non fare nulla se il campo è vuoto
+
         const enteredPasswordHash = await sha256(enteredPassword);
 
         if (enteredPasswordHash === correctPasswordHash) {
