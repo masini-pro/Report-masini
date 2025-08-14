@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('error-message');
     const mainContainer = document.querySelector('.container');
     
-    // Hash SHA-256 della password corretta. La password originale non è visibile nel codice.
+    // Hash SHA-256 della password corretta.
     const correctPasswordHash = '23855dd8132815801511516361a386134b216f46811e98218562a90557593c8d';
 
     // Funzione per calcolare l'hash SHA-256 di una stringa
@@ -22,9 +22,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // La funzione di login è asincrona per attendere il calcolo dell'hash
     const attemptLogin = async () => {
         const enteredPassword = passwordInput.value;
-        if (!enteredPassword) return; // Non fare nulla se il campo è vuoto
+        if (!enteredPassword) return;
+
+        // Diagnostica: Controlla se l'API Crypto è disponibile
+        if (!window.crypto || !window.crypto.subtle) {
+            alert("ERRORE CRITICO: L'API di crittografia non è disponibile. Assicurati di caricare il sito tramite HTTPS (come su GitHub Pages) e non da un file locale.");
+            console.error("crypto.subtle API non trovata. L'hashing non può essere eseguito.");
+            return;
+        }
 
         const enteredPasswordHash = await sha256(enteredPassword);
+
+        // Diagnostica: Stampa i valori nella console per il debug
+        console.log("--- DEBUG PASSWORD ---");
+        console.log("Password inserita:", enteredPassword);
+        console.log("Hash calcolato:", enteredPasswordHash);
+        console.log("Hash corretto salvato:", correctPasswordHash);
+        console.log("Gli hash corrispondono?:", enteredPasswordHash === correctPasswordHash);
+        console.log("----------------------");
 
         if (enteredPasswordHash === correctPasswordHash) {
             loginOverlay.style.display = 'none';
