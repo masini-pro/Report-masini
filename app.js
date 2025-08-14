@@ -1,38 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Logica di Login Sicura con Hashing ---
+    // --- Logica di Login con Password Cammuffata (Base64) ---
     const loginOverlay = document.getElementById('login-overlay');
     const passwordInput = document.getElementById('password-input');
     const loginButton = document.getElementById('login-button');
     const errorMessage = document.getElementById('error-message');
     const mainContainer = document.querySelector('.container');
     
-    // --- HASH CORRETTO ---
-    // Questo è l'hash SHA-256 corretto per la password "roteglia".
-    const correctPasswordHash = '4f50f9be1c913968f1e900439c2c90043cc9ca811ba3907f6eda781648d628e';
+    // La password è stata codificata in Base64 per non essere leggibile in chiaro.
+    const correctPasswordEncoded = 'cm90ZWdsaWE=';
 
-    // Funzione per calcolare l'hash SHA-256 di una stringa
-    async function sha256(message) {
-        const msgBuffer = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    }
+    const attemptLogin = () => {
+        // Codifica l'input dell'utente in Base64 prima del confronto
+        const enteredPasswordEncoded = btoa(passwordInput.value);
 
-    // La funzione di login è asincrona per attendere il calcolo dell'hash
-    const attemptLogin = async () => {
-        const enteredPassword = passwordInput.value;
-        if (!enteredPassword) return;
-
-        if (!window.crypto || !window.crypto.subtle) {
-            alert("ERRORE CRITICO: L'API di crittografia non è disponibile. Assicurati di caricare il sito tramite HTTPS (come su GitHub Pages) e non da un file locale.");
-            return;
-        }
-
-        const enteredPasswordHash = await sha256(enteredPassword);
-
-        if (enteredPasswordHash === correctPasswordHash) {
+        if (enteredPasswordEncoded === correctPasswordEncoded) {
             loginOverlay.style.display = 'none';
             mainContainer.style.display = 'block';
         } else {
