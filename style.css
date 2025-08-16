@@ -195,15 +195,17 @@ label {
     color: white;
 }
 
+/* --- MODIFICA: Aree Touch più grandi e font leggibile --- */
 input[type="text"],
 input[type="date"],
 select,
 textarea {
     width: 100%;
-    padding: 12px 15px;
+    padding: 14px 15px; /* Aumentato padding verticale */
+    min-height: 50px; /* Altezza minima per un tocco facile */
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 16px; /* Garantisce leggibilità su mobile */
     font-family: 'Poppins', sans-serif;
     box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
@@ -212,6 +214,12 @@ textarea {
     z-index: 1;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
 }
+
+textarea {
+    min-height: 140px; /* Altezza minima più generosa per le textarea */
+}
+/* -------------------------------------------------------- */
+
 
 .form-group:focus-within input,
 .form-group:focus-within select,
@@ -267,7 +275,7 @@ input[readonly] {
 #addInterlocutore { margin-top: 10px; }
 .remove-interlocutore-btn {
     background: var(--error-color); color: white; border: none; border-radius: 6px;
-    padding: 12px; cursor: pointer; height: 48px; width: 48px;
+    padding: 12px; cursor: pointer; height: 50px; width: 50px; /* Altezza allineata agli input */
     display: flex; align-items: center; justify-content: center;
     transition: background-color 0.2s;
 }
@@ -290,6 +298,7 @@ button {
     padding: 14px 22px; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif;
     border-radius: 8px; border: none; cursor: pointer; transition: all 0.3s ease;
     display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 50px; /* Altezza minima anche per i pulsanti */
 }
 #generatePdfBtn, #generateIcsBtn { flex-grow: 1; }
 #generatePdfBtn {
@@ -305,9 +314,29 @@ button {
 .button-secondary:hover { background-color: #dfe6e9; }
 .button-secondary svg, #generateIcsBtn svg, #generatePdfBtn svg { width: 20px; height: 20px; }
 
+/* --- MODIFICA: Ottimizzazioni specifiche per mobile --- */
 @media (max-width: 700px) {
-    .container { margin: 0; padding: 15px; border-radius: 0; box-shadow: none; }
+    body {
+        font-size: 16px; /* Base font size per leggibilità */
+        -webkit-text-size-adjust: 100%; /* Previene zoom testo su iOS */
+    }
+    .container { margin: 0; padding: 20px 15px; border-radius: 0; box-shadow: none; }
+    
+    header h1 {
+        font-size: 1.9em; /* Titolo leggermente più piccolo */
+    }
+
+    fieldset {
+        padding: 20px 15px;
+    }
+
+    .form-group {
+        margin-bottom: 24px; /* Più spazio tra gli elementi */
+    }
+
     .interlocutore-group { grid-template-columns: 1fr; }
+    
     .form-actions { flex-direction: column-reverse; }
+    
     button { width: 100%; }
 }
